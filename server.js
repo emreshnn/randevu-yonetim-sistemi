@@ -338,8 +338,21 @@ function uploadAppointmentPhoto(req, res, next) {
   });
 }
 
+// Oturum anahtari: once SESSION_SECRET ortam degiskeninden okunur.
+// Tanimli degilse ilk calistirmada rastgele uretilip veritabaninda saklanir,
+// boylece kod icine gomulu sabit bir anahtar bulunmaz.
+function getSessionSecret() {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  let s = getSetting('session_secret');
+  if (!s) {
+    s = require('crypto').randomBytes(32).toString('hex');
+    setSetting('session_secret', s);
+  }
+  return s;
+}
+
 app.use(session({
-  secret: 'baloglu-secret-2024',
+  secret: getSessionSecret(),
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
@@ -1177,7 +1190,7 @@ app.put('/api/admin/working-hours/:day', requireAuth, (req, res) => {
 // ── Settings ───────────────────────────────────────────────────────────────────
 app.get('/api/admin/settings', requireAuth, (req, res) => {
   const s = getAllSettings();
-  const { admin_password, twilio_account_sid, twilio_auth_token, twilio_from_number, twilio_active, meta_access_token, meta_phone_number_id, meta_active, ...rest } = s;
+  const { admin_password, session_secret, twilio_account_sid, twilio_auth_token, twilio_from_number, twilio_active, meta_access_token, meta_phone_number_id, meta_active, ...rest } = s;
   res.json({ settings: rest });
 });
 app.put('/api/admin/settings', requireAuth, (req, res) => {

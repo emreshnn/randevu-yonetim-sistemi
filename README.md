@@ -60,7 +60,15 @@ public/admin.html   Yönetim paneli
 KURULUM.md          Son kullanıcı için kısa kurulum kılavuzu
 ```
 
+## Yapılandırma
+
+| Ortam değişkeni | Açıklama |
+|---|---|
+| `SESSION_SECRET` | Oturum imzalama anahtarı. Tanımlanmazsa ilk çalıştırmada rastgele üretilip veritabanında saklanır. Üretimde tanımlanması önerilir. |
+| `PORT` | Sunucu portu (varsayılan: 3000) |
+
 ## Notlar
 
 - WhatsApp oturum verisi (`wa-session/`) ve veritabanı dosyaları bilinçli olarak depoya dahil edilmemiştir.
 - Twilio bilgileri kod içinde tutulmaz; yönetim panelinden girilir ve veritabanında saklanır.
+- Oturum anahtarı, yönetici parolası ve bildirim anahtarları `/api/admin/settings` yanıtından ayıklanır; istemciye hiçbir zaman gönderilmez.
