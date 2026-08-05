@@ -1,0 +1,20 @@
+node_modules/
+.env
+.env.local
+
+# Veritabanı (çalışma anında oluşur)
+*.db
+*.db-shm
+*.db-wal
+db.json.bak
+
+# WhatsApp oturum verisi — asla paylaşılmamalı
+wa-session/
+cookie.txt
+
+# Yüklenen dosyalar
+public/uploads/
+
+# Sistem
+.DS_Store
+Thumbs.db

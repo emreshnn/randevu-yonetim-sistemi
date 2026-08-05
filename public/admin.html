@@ -1,0 +1,3924 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Paneli - Baloğlu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #c9a227;
+      --accent-light: #f0c040;
+      --sidebar-w: 260px;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; }
+
+    /* Login */
+    .login-screen {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .login-logo { font-size: 3rem; color: var(--accent); margin-bottom: 8px; }
+    .login-box h1 { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .login-box p { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+
+    /* Layout */
+    .app-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--primary);
+      color: #fff;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 100;
+      transition: transform 0.3s;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .sidebar-logo .logo-icon { font-size: 2rem; color: var(--accent); }
+    .sidebar-logo h2 { font-size: 0.95rem; font-weight: 700; margin: 8px 0 2px; line-height: 1.3; }
+    .sidebar-logo p { font-size: 0.75rem; opacity: 0.5; margin: 0; }
+    .nav-section { padding: 16px 12px 0; }
+    .nav-section-title { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; padding: 0 8px; margin-bottom: 6px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      transition: all 0.2s;
+      margin-bottom: 2px;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: var(--accent); color: #1a1a2e; font-weight: 700; }
+    .nav-item .badge-pending {
+      margin-left: auto;
+      background: #dc3545;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    .sidebar-bottom { padding: 16px 12px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); }
+
+    .main-content { margin-left: var(--sidebar-w); flex: 1; }
+    .topbar {
+      background: #fff;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar h1 { font-size: 1.2rem; font-weight: 700; color: #1a1a2e; margin: 0; }
+    .page-content { padding: 28px; }
+
+    /* Cards */
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      border: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .stat-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .stat-value { font-size: 2rem; font-weight: 800; color: #1a1a2e; line-height: 1; }
+    .stat-label { font-size: 0.8rem; color: #888; margin-top: 4px; }
+
+    /* Table */
+    .data-table { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .data-table .table-header { padding: 20px 24px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .data-table .table-header h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+    .data-table table { width: 100%; border-collapse: collapse; }
+    .data-table th { padding: 12px 20px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; font-weight: 600; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+    .data-table td { padding: 14px 20px; font-size: 0.88rem; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    .data-table tr:hover td { background: #fafafa; }
+
+    /* Status badges */
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-approved { background: #d1f2eb; color: #0e7c5b; }
+    .badge-rejected { background: #fde8e8; color: #9b1c1c; }
+    .badge-cancelled { background: #f0f0f0; color: #666; }
+    .badge-completed { background: #d4edda; color: #1e7e34; }
+    .badge-no_show { background: #e2e3e5; color: #818182; text-decoration: line-through; }
+
+    /* Buttons */
+    .btn-approve { background: #28a745; color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-approve:hover { background: #218838; }
+    .btn-reject { background: #dc3545; color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-reject:hover { background: #c82333; }
+    .btn-wa { background: #25d366; color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-wa:hover { background: #128c7e; }
+    .btn-gold { background: var(--accent); color: #1a1a2e; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-gold:hover { background: var(--accent-light); }
+
+    /* Form */
+    .form-control, .form-select { border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; }
+    .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,162,39,0.15); }
+    .form-label { font-weight: 600; font-size: 0.85rem; color: #555; }
+
+    /* Modal */
+    .modal-content { border-radius: 16px; border: none; }
+    .modal-header { background: var(--primary); color: #fff; border-radius: 16px 16px 0 0; }
+    .modal-header .btn-close { filter: invert(1); }
+
+    /* WA Status */
+    .wa-status { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; }
+    .wa-status.connected { background: #d1f2eb; color: #0e7c5b; }
+    .wa-status.disconnected { background: #fde8e8; color: #9b1c1c; }
+    .wa-status.loading { background: #fff3cd; color: #856404; }
+
+    /* Notifications */
+    .notif-bell { position: relative; cursor: pointer; font-size: 1.3rem; color: #555; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .notif-bell:hover { background: #f5f5f5; }
+    .notif-badge { position: absolute; top: 2px; right: 2px; background: #dc3545; color: #fff; font-size: 0.65rem; font-weight: 700; border-radius: 20px; padding: 2px 5px; min-width: 16px; line-height: 1.2; text-align: center; }
+    .notif-panel { position: absolute; top: calc(100% + 10px); right: 0; width: 360px; max-width: calc(100vw - 32px); max-height: 440px; overflow-y: auto; background: #fff; border-radius: 16px; box-shadow: 0 10px 35px rgba(0,0,0,0.18); z-index: 200; text-align: left; }
+    .notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; background: #fff; }
+    .notif-panel-header h4 { margin: 0; font-size: 0.95rem; font-weight: 700; color: #1a1a2e; }
+    .notif-panel-header button { background: none; border: none; color: var(--primary); font-size: 0.78rem; font-weight: 700; cursor: pointer; padding: 0; }
+    .notif-item { display: flex; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #f8f8f8; cursor: pointer; align-items: flex-start; }
+    .notif-item:hover { background: #fafafa; }
+    .notif-item.unread { background: #fff9e6; }
+    .notif-item .notif-icon { width: 38px; height: 38px; border-radius: 10px; background: #fff3cd; color: #856404; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; }
+    .notif-item .notif-text { font-size: 0.85rem; color: #333; line-height: 1.4; }
+    .notif-item .notif-time { font-size: 0.72rem; color: #999; margin-top: 4px; }
+    .notif-panel .empty-state { padding: 30px 18px; }
+
+    /* Days table */
+    .days-table td, .days-table th { vertical-align: middle; padding: 10px 12px; font-size: 0.88rem; }
+    .toggle-switch { width: 46px; height: 24px; position: relative; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: #ccc; border-radius: 24px; cursor: pointer; transition: 0.3s;
+    }
+    .toggle-slider:before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; background: #fff; border-radius: 50%;
+      left: 3px; top: 3px; transition: 0.3s;
+    }
+    input:checked + .toggle-slider { background: #28a745; }
+    input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+    /* Responsive */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.show { display: block; }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: none; }
+      .main-content { margin-left: 0; }
+      .page-content { padding: 16px; }
+      .topbar { padding: 12px 16px; }
+      .data-table .table-header { padding: 14px 16px; }
+      .data-table th, .data-table td { padding: 10px 12px; }
+      /* iOS input zoom engelleme */
+      input, select, textarea { font-size: 16px !important; }
+    }
+
+    .section-page { display: none; }
+    .section-page.active { display: block; }
+
+    .customer-phone-link { color: #25d366; text-decoration: none; font-weight: 600; }
+    .customer-phone-link:hover { text-decoration: underline; }
+
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-bar .form-select, .filter-bar .form-control { padding: 8px 12px; font-size: 0.85rem; min-width: 130px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
+    .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+
+    /* Calendar */
+    .cal-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .cal-toolbar-left, .cal-toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .cal-nav-btn {
+      background: #fff; border: 2px solid #e0e0e0; border-radius: 10px;
+      padding: 8px 14px; font-weight: 600; font-size: 0.85rem; color: #1a1a2e;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .cal-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .cal-range-label {
+      font-weight: 700; font-size: 0.95rem; color: #1a1a2e; cursor: pointer;
+      padding: 8px 14px; border-radius: 10px; background: #fff; border: 2px solid #e0e0e0;
+      display: inline-flex; align-items: center;
+    }
+    .cal-range-label:hover { border-color: var(--accent); }
+    #calStaffFilter { min-width: 180px; }
+
+    .cal-grid-wrap { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow-x: auto; }
+    .cal-grid { display: grid; grid-template-columns: 56px repeat(7, minmax(120px, 1fr)); min-width: 920px; }
+
+    .cal-corner { border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0; position: sticky; left: 0; top: 0; background: #fff; z-index: 3; }
+    .cal-head { padding: 10px 6px; text-align: center; border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f8f8f8; position: sticky; top: 0; background: #fff; z-index: 2; }
+    .cal-head .dname { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; font-weight: 600; }
+    .cal-head .dnum { font-size: 1.15rem; font-weight: 800; color: #1a1a2e; }
+    .cal-head.is-today { background: rgba(201,162,39,0.12); }
+    .cal-head.is-today .dnum { color: var(--accent); }
+
+    .cal-time-col { border-right: 1px solid #f0f0f0; position: sticky; left: 0; background: #fff; z-index: 1; }
+    .cal-time-slot { font-size: 0.7rem; color: #aaa; text-align: right; padding: 2px 6px; border-bottom: 1px solid #f8f8f8; box-sizing: border-box; }
+
+    .cal-day-col { position: relative; border-right: 1px solid #f8f8f8; }
+    .cal-day-col.is-today { background: rgba(201,162,39,0.05); }
+    .cal-hour-line { border-bottom: 1px solid #f8f8f8; box-sizing: border-box; }
+
+    .cal-appt {
+      position: absolute; border-radius: 6px; padding: 3px 6px; font-size: 0.72rem; line-height: 1.25;
+      overflow: hidden; cursor: pointer; color: #2d2d2d; background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid var(--ca-color, #ccc); border-left: 4px solid var(--ca-color, #ccc);
+      transition: box-shadow 0.15s; box-sizing: border-box;
+    }
+    .cal-appt:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 5; }
+    .cal-appt .ca-time { font-weight: 700; color: var(--ca-color, #333); }
+    .cal-appt .ca-name { font-weight: 600; }
+    .cal-appt .ca-time, .cal-appt .ca-name, .cal-appt .ca-service { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .cal-appt .ca-service { opacity: 0.7; }
+    .cal-appt.status-pending { border-left-style: dashed; }
+    .cal-appt.status-rejected, .cal-appt.status-cancelled, .cal-appt.status-no_show { background: #f5f5f5; color: #999; text-decoration: line-through; border-color: #ddd; border-left-color: #bbb; }
+
+    @media (max-width: 768px) {
+      .cal-toolbar { gap: 8px; }
+      .cal-range-label { font-size: 0.85rem; padding: 8px 10px; }
+      #calStaffFilter { min-width: 140px; font-size: 0.8rem !important; }
+      .cal-grid { min-width: 760px; }
+    }
+
+    /* Randevu Detayi */
+    .detail-back-btn { background:#fff; border:2px solid #e0e0e0; border-radius:10px; padding:8px 14px; font-weight:600; cursor:pointer; color:#1a1a2e; margin-bottom:16px; }
+    .detail-back-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .detail-header { background:#fff; border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,0.06); padding:20px 24px; margin-bottom:20px; }
+    .detail-header h3 { margin:0 0 4px 0; font-size:1.2rem; font-weight:700; }
+    .detail-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .btn-detail { border:none; border-radius:10px; padding:8px 16px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all .2s; }
+    .btn-checkin { background:#28a745; color:#fff; }
+    .btn-checkin:hover { background:#218838; }
+    .btn-noshow { background:#6c757d; color:#fff; }
+    .btn-noshow:hover { background:#5a6268; }
+    .btn-cancelapt { background:#dc3545; color:#fff; }
+    .btn-cancelapt:hover { background:#c82333; }
+
+    .tag-chip { display:inline-flex; align-items:center; gap:6px; background:#f0f2f5; border-radius:20px; padding:4px 12px; font-size:0.8rem; font-weight:600; color:#555; margin:2px; }
+    .tag-chip .bi { cursor:pointer; color:#aaa; }
+    .tag-chip .bi:hover { color:#dc3545; }
+
+    .color-swatches { display:flex; gap:8px; flex-wrap:wrap; }
+    .color-swatch { width:32px; height:32px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all .15s; }
+    .color-swatch.selected { border-color:#1a1a2e; transform:scale(1.1); }
+
+    .service-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #f0f0f0; gap:10px; flex-wrap:wrap; }
+    .service-row:last-child { border-bottom:none; }
+    .service-row .sr-info { flex:1; min-width:160px; }
+    .service-row .sr-price { font-weight:700; color:var(--accent); white-space:nowrap; }
+
+    .photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; }
+    .photo-item { position:relative; border-radius:10px; overflow:hidden; aspect-ratio:1; background:#f0f2f5; }
+    .photo-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .photo-item .photo-del { position:absolute; top:6px; right:6px; background:rgba(220,53,69,0.9); color:#fff; border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; }
+
+    .payment-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+    .payment-row:last-child { border-bottom:none; }
+    .payment-amount.tahsilat { color:#28a745; font-weight:700; }
+    .payment-amount.alacak { color:#dc3545; font-weight:700; }
+
+    .totals-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:20px; }
+    .totals-box { background:#fafafa; border-radius:12px; padding:14px 16px; text-align:center; }
+    .totals-box .tb-label { font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+    .totals-box .tb-value { font-size:1.3rem; font-weight:800; color:#1a1a2e; margin-top:4px; }
+    .totals-box.remaining .tb-value { color:#dc3545; }
+
+    .expense-cat { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; white-space:nowrap; }
+    .exp-kira { background:#e0e7ff; color:#4f46e5; }
+    .exp-fatura { background:#fde8e8; color:#9b1c1c; }
+    .exp-malzeme { background:#d1f2eb; color:#0e7c5b; }
+    .exp-maas { background:#fff3cd; color:#856404; }
+    .exp-bakim { background:#fce7f3; color:#be185d; }
+    .exp-vergi { background:#e2e3e5; color:#383d41; }
+    .exp-diger { background:#f0f0f0; color:#666; }
+
+    .stock-badge { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+    .stock-ok { background:#d1f2eb; color:#0e7c5b; }
+    .stock-low { background:#fde8e8; color:#9b1c1c; }
+
+    .session-badge { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+    .session-active { background:#d1f2eb; color:#0e7c5b; }
+    .session-done { background:#f0f0f0; color:#888; }
+
+    .new-actions-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; }
+    .new-action-btn {
+      border:none; border-radius:16px; padding:32px 16px; display:flex; flex-direction:column;
+      align-items:center; gap:10px; font-weight:700; font-size:0.95rem; color:#fff; cursor:pointer;
+      transition:transform .15s, box-shadow .15s; box-shadow:0 2px 12px rgba(0,0,0,0.08);
+    }
+    .new-action-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.14); }
+    .new-action-btn i { font-size:2.2rem; }
+    .na-blue   { background:linear-gradient(135deg,#4f46e5,#3730a3); }
+    .na-green  { background:linear-gradient(135deg,#0e9f6e,#0a6c4d); }
+    .na-purple { background:linear-gradient(135deg,#9333ea,#6b21a8); }
+    .na-orange { background:linear-gradient(135deg,#d97706,#92400e); }
+    .na-red    { background:linear-gradient(135deg,#e02424,#9b1c1c); }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><i class="bi bi-scissors"></i></div>
+    <h1>Baloğlu Admin Paneli</h1>
+    <p>Devam etmek için şifrenizi girin</p>
+    <div class="mb-3 text-start">
+      <label class="form-label">Admin Şifresi</label>
+      <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div id="loginError" class="text-danger small mb-3" style="display:none">Şifre hatalı</div>
+    <button class="btn-gold w-100" onclick="login()"><i class="bi bi-lock-fill me-2"></i>Giriş Yap</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="adminApp" class="app-layout" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="bi bi-scissors"></i></div>
+      <h2>Baloğlu Erkek Saç<br>Tasarım Merkezi</h2>
+      <p>Admin Paneli</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Ana Menü</div>
+      <a class="nav-item active" onclick="showSection('dashboard')"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <a class="nav-item" onclick="showSection('new')"><i class="bi bi-plus-circle"></i> Yeni</a>
+      <a class="nav-item" onclick="showSection('calendar')"><i class="bi bi-calendar3"></i> Takvim</a>
+      <a class="nav-item" onclick="showSection('appointments')">
+        <i class="bi bi-calendar-check"></i> Randevular
+        <span class="badge-pending" id="pendingBadge" style="display:none">0</span>
+      </a>
+      <a class="nav-item" onclick="showSection('today')"><i class="bi bi-calendar-day"></i> Bugün</a>
+      <a class="nav-item" onclick="showSection('adisyonlar')"><i class="bi bi-receipt"></i> Adisyonlar</a>
+      <a class="nav-item" onclick="showSection('customers')"><i class="bi bi-person-vcard"></i> Müşteriler</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Yönetim</div>
+      <a class="nav-item" onclick="showSection('expenses')"><i class="bi bi-wallet2"></i> Masraflar</a>
+      <a class="nav-item" onclick="showSection('products')"><i class="bi bi-bag"></i> Ürünler</a>
+      <a class="nav-item" onclick="showSection('packages')"><i class="bi bi-box-seam"></i> Paketler</a>
+      <a class="nav-item" onclick="showSection('staff')"><i class="bi bi-people"></i> Personel</a>
+      <a class="nav-item" onclick="showSection('services')"><i class="bi bi-scissors"></i> Hizmetler</a>
+      <a class="nav-item" onclick="showSection('hours')"><i class="bi bi-clock"></i> Çalışma Saatleri</a>
+      <a class="nav-item" onclick="showSection('whatsapp')"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+      <a class="nav-item" onclick="showSection('settings')"><i class="bi bi-gear"></i> Ayarlar</a>
+    </div>
+    <div class="sidebar-bottom">
+      <a class="nav-item" href="/" target="_blank"><i class="bi bi-eye"></i> Siteyi Gör</a>
+      <a class="nav-item" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Çıkış</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div id="waStatusTopbar" class="wa-status loading"><i class="bi bi-whatsapp"></i> <span>Bağlanıyor...</span></div>
+        <div class="notif-bell" id="notifBell" onclick="toggleNotifications(event)">
+          <i class="bi bi-bell"></i>
+          <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+          <div class="notif-panel" id="notifPanel" style="display:none">
+            <div class="notif-panel-header">
+              <h4>Bildirimler</h4>
+              <button onclick="markAllNotificationsRead(event)">Tümünü okundu işaretle</button>
+            </div>
+            <div id="notifList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      <div id="sec-dashboard" class="section-page active">
+        <div class="row g-4 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon mb-2" style="background:#fff3cd"><i class="bi bi-hourglass-split" style="color:#856404"></i></div>
+              <div class="stat-value" id="stat-pending">0</div>
+              <div class="stat-label">Bekleyen Randevu</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon mb-2" style="background:#d1f2eb"><i class="bi bi-calendar-check" style="color:#0e7c5b"></i></div>
+              <div class="stat-value" id="stat-today">0</div>
+              <div class="stat-label">Bugün Toplam</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon mb-2" style="background:#e0e7ff"><i class="bi bi-check-circle" style="color:#4f46e5"></i></div>
+              <div class="stat-value" id="stat-approved">0</div>
+              <div class="stat-label">Bugün Onaylı</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon mb-2" style="background:#fce7f3"><i class="bi bi-calendar-week" style="color:#be185d"></i></div>
+              <div class="stat-value" id="stat-week">0</div>
+              <div class="stat-label">Bu Hafta</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-table">
+          <div class="table-header">
+            <h3><i class="bi bi-hourglass me-2 text-warning"></i>Bekleyen Randevular</h3>
+            <button class="btn-gold" onclick="showSection('appointments')">Tümünü Gör</button>
+          </div>
+          <div id="recentAppointments">
+            <div class="empty-state"><i class="bi bi-calendar-x"></i>Bekleyen randevu yok</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div id="sec-calendar" class="section-page">
+        <div class="cal-toolbar">
+          <div class="cal-toolbar-left">
+            <button class="cal-nav-btn" onclick="calToday()"><i class="bi bi-calendar-event"></i> Bugün</button>
+            <button class="cal-nav-btn" onclick="calNav(-1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="cal-nav-btn" onclick="calNav(1)"><i class="bi bi-chevron-right"></i></button>
+            <span class="cal-range-label" onclick="calOpenDatePicker()"><i class="bi bi-calendar3 me-2"></i><span id="calRangeText">-</span></span>
+            <input type="date" id="calDatePicker" style="position:absolute; opacity:0; width:0; height:0; pointer-events:none;" onchange="calJumpToDate(this.value)">
+          </div>
+          <div class="cal-toolbar-right">
+            <select class="form-select" id="calStaffFilter" onchange="loadCalendar()">
+              <option value="">TÜM ÇALIŞANLAR</option>
+            </select>
+            <button class="cal-nav-btn" onclick="openCalSettings()" title="Takvim Ayarları"><i class="bi bi-sliders"></i></button>
+          </div>
+        </div>
+
+        <div class="cal-grid-wrap">
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+
+      <!-- ALL APPOINTMENTS -->
+      <div id="sec-appointments" class="section-page">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>Tüm Randevular</h3>
+            <div class="filter-bar">
+              <select class="form-select" id="filterStatus" onchange="loadAppointments()">
+                <option value="">Tüm Durumlar</option>
+                <option value="pending">Bekleyen</option>
+                <option value="approved">Onaylı</option>
+                <option value="completed">Geldi</option>
+                <option value="no_show">Gelmedi</option>
+                <option value="rejected">Reddedildi</option>
+                <option value="cancelled">İptal</option>
+              </select>
+              <input type="date" class="form-control" id="filterDate" onchange="loadAppointments()">
+              <button class="btn-gold" onclick="clearFilters()">Temizle</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Müşteri</th>
+                  <th>Telefon</th>
+                  <th>Hizmet</th>
+                  <th>Personel</th>
+                  <th>Tarih</th>
+                  <th>Saat</th>
+                  <th>Durum</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="appointmentsTableBody"></tbody>
+            </table>
+            <div id="appointmentsEmpty" class="empty-state" style="display:none"><i class="bi bi-calendar-x"></i>Kayıt bulunamadı</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPOINTMENT DETAIL -->
+      <div id="sec-appointment-detail" class="section-page">
+        <button class="detail-back-btn" onclick="closeAppointmentDetail()"><i class="bi bi-arrow-left me-1"></i>Geri</button>
+
+        <div class="detail-header" id="detailHeader"></div>
+
+        <ul class="nav nav-tabs mb-4" id="detailTabs">
+          <li class="nav-item"><a class="nav-link active" href="#" onclick="return showDetailTab('detay')" id="dtab-detay"><i class="bi bi-info-circle me-1"></i>DETAY</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="return showDetailTab('foto')" id="dtab-foto"><i class="bi bi-camera me-1"></i>FOTOĞRAF</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="return showDetailTab('odeme')" id="dtab-odeme"><i class="bi bi-cash-coin me-1"></i>ÖDEME</a></li>
+        </ul>
+
+        <div id="detail-tab-detay"></div>
+        <div id="detail-tab-foto" style="display:none"></div>
+        <div id="detail-tab-odeme" style="display:none"></div>
+      </div>
+
+      <!-- TODAY -->
+      <div id="sec-today" class="section-page">
+        <div class="data-table">
+          <div class="table-header">
+            <h3><i class="bi bi-calendar-day me-2"></i>Bugünün Randevuları</h3>
+            <span id="todayDateLabel" class="text-muted small"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr><th>Saat</th><th>Müşteri</th><th>Telefon</th><th>Hizmet</th><th>Personel</th><th>Durum</th><th>İşlem</th></tr>
+              </thead>
+              <tbody id="todayTableBody"></tbody>
+            </table>
+            <div id="todayEmpty" class="empty-state" style="display:none"><i class="bi bi-calendar-x"></i>Bugün randevu yok</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW (Yeni Islem) -->
+      <div id="sec-new" class="section-page">
+        <div class="new-actions-grid">
+          <button class="new-action-btn na-blue" onclick="openNewAppointmentModal('appointment')">
+            <i class="bi bi-calendar-plus"></i><span>Yeni Randevu</span>
+          </button>
+          <button class="new-action-btn na-green" onclick="openNewAppointmentModal('adisyon')">
+            <i class="bi bi-receipt"></i><span>Yeni Adisyon</span>
+          </button>
+          <button class="new-action-btn na-purple" onclick="openProductSaleModal()">
+            <i class="bi bi-bag"></i><span>Yeni Ürün Satışı</span>
+          </button>
+          <button class="new-action-btn na-orange" onclick="openPackageSaleModal()">
+            <i class="bi bi-box-seam"></i><span>Yeni Paket Satışı</span>
+          </button>
+          <button class="new-action-btn na-red" onclick="openExpenseModal()">
+            <i class="bi bi-wallet2"></i><span>Yeni Masraf</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ADISYONLAR -->
+      <div id="sec-adisyonlar" class="section-page">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>Adisyonlar</h3>
+            <div class="filter-bar">
+              <input type="date" class="form-control" id="adisyonDate" onchange="loadAdisyonlar()">
+              <button class="btn-gold" onclick="clearAdisyonFilters()">Temizle</button>
+            </div>
+          </div>
+          <ul class="nav nav-tabs mb-3 mt-3 mx-3" id="adisyonTabs">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="return showAdisyonTab('acik')" id="atab-acik">Açık</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="return showAdisyonTab('kapatilmis')" id="atab-kapatilmis">Kapatılmış</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="return showAdisyonTab('iptal')" id="atab-iptal">İptal Edilmiş</a></li>
+          </ul>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Müşteri</th><th>Hizmet</th><th>Tarih/Saat</th><th>Tutar</th><th>Ödenen</th><th>İşlem</th></tr></thead>
+              <tbody id="adisyonTableBody"></tbody>
+            </table>
+            <div id="adisyonEmpty" class="empty-state" style="display:none"><i class="bi bi-receipt"></i>Adisyon bulunamadı</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS -->
+      <div id="sec-customers" class="section-page">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>Müşteriler</h3>
+            <div class="filter-bar">
+              <input type="text" class="form-control" id="customerSearch" placeholder="Ad veya telefon ara..." oninput="loadCustomers()">
+              <button class="btn-gold" onclick="openCustomerModal()"><i class="bi bi-plus me-1"></i>Yeni</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Ad</th><th>Telefon</th><th>Parapuan</th></tr></thead>
+              <tbody id="customersTableBody"></tbody>
+            </table>
+            <div id="customersEmpty" class="empty-state" style="display:none"><i class="bi bi-person-x"></i>Müşteri bulunamadı</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOMER DETAIL -->
+      <div id="sec-customer-detail" class="section-page">
+        <button class="detail-back-btn" onclick="closeCustomerDetail()"><i class="bi bi-arrow-left me-1"></i>Geri</button>
+
+        <div class="detail-header" id="customerDetailHeader"></div>
+
+        <div class="totals-grid">
+          <div class="totals-box"><div class="tb-label">Toplam Randevu</div><div class="tb-value" id="custTotalCount">0</div></div>
+          <div class="totals-box remaining"><div class="tb-label">Bakiye</div><div class="tb-value" id="custBalance">0 TL</div></div>
+          <div class="totals-box"><div class="tb-label">Parapuan Bakiyesi</div><div class="tb-value" id="custLoyaltyBalance">0 TL</div></div>
+        </div>
+
+        <div class="data-table p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h3 class="mb-0">Parapuan Geçmişi</h3>
+            <button class="btn-gold" onclick="openLoyaltyAdjustModal()"><i class="bi bi-plus-slash-minus me-1"></i>Parapuan Ekle/Çıkar</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Tarih</th><th>Tür</th><th>Tutar</th><th>Not</th></tr></thead>
+              <tbody id="loyaltyHistoryBody"></tbody>
+            </table>
+            <div id="loyaltyHistoryEmpty" class="empty-state" style="display:none"><i class="bi bi-coin"></i>Parapuan hareketi yok</div>
+          </div>
+        </div>
+
+        <div class="data-table p-4 mb-4">
+          <h3 class="mb-3">Notlar & Etiketler</h3>
+          <textarea class="form-control" id="customerNotes" rows="3" placeholder="Müşteri hakkında not ekleyin..."></textarea>
+          <label class="form-label mt-3">Etiketler</label>
+          <input type="text" class="form-control mb-2" id="customerTags" placeholder="Örn: VIP, Sadık Müşteri (virgülle ayırın)">
+          <button class="btn-gold mt-2" onclick="saveCustomerNotes()"><i class="bi bi-save me-1"></i>Kaydet</button>
+        </div>
+
+        <div class="data-table mb-4">
+          <div class="table-header"><h3>Geçmiş Randevular</h3></div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Tarih</th><th>Saat</th><th>Hizmet</th><th>Personel</th><th>Durum</th><th>Tutar</th><th>İşlem</th></tr></thead>
+              <tbody id="customerHistoryBody"></tbody>
+            </table>
+            <div id="customerHistoryEmpty" class="empty-state" style="display:none"><i class="bi bi-calendar-x"></i>Randevu geçmişi yok</div>
+          </div>
+        </div>
+
+        <div class="data-table p-4">
+          <h3 class="mb-3">Fotoğraflar</h3>
+          <div class="photo-grid" id="customerPhotoGrid"></div>
+          <div id="customerPhotoEmpty" class="empty-state" style="display:none"><i class="bi bi-camera"></i>Fotoğraf yok</div>
+        </div>
+      </div>
+
+      <!-- EXPENSES -->
+      <div id="sec-expenses" class="section-page">
+        <div class="totals-grid">
+          <div class="totals-box remaining"><div class="tb-label">Toplam Masraf</div><div class="tb-value" id="expenseTotal">0 TL</div></div>
+        </div>
+        <div class="data-table">
+          <div class="table-header">
+            <h3>Masraflar</h3>
+            <div class="filter-bar">
+              <select class="form-select" id="expenseCategory" onchange="loadExpenses()">
+                <option value="">Tüm Kategoriler</option>
+                <option value="Kira">Kira</option>
+                <option value="Fatura">Fatura</option>
+                <option value="Malzeme">Malzeme</option>
+                <option value="Maaş/Prim">Maaş/Prim</option>
+                <option value="Bakım/Onarım">Bakım/Onarım</option>
+                <option value="Vergi/SGK">Vergi/SGK</option>
+                <option value="Diğer">Diğer</option>
+              </select>
+              <input type="month" class="form-control" id="expenseMonth" onchange="loadExpenses()">
+              <button class="btn-gold" onclick="clearExpenseFilters()">Temizle</button>
+              <button class="btn-gold" onclick="openExpenseModal()"><i class="bi bi-plus me-1"></i>Yeni</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Tarih</th><th>Kategori</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead>
+              <tbody id="expensesTableBody"></tbody>
+            </table>
+            <div id="expensesEmpty" class="empty-state" style="display:none"><i class="bi bi-wallet2"></i>Masraf bulunamadı</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div id="sec-products" class="section-page">
+        <ul class="nav nav-tabs mb-3" id="productTabs">
+          <li class="nav-item"><a class="nav-link active" href="#" onclick="return showProductTab('stock')" id="ptab-stock">Ürünler</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="return showProductTab('sales')" id="ptab-sales">Satışlar</a></li>
+        </ul>
+
+        <div id="productStockView">
+          <div class="data-table">
+            <div class="table-header">
+              <h3>Ürün Stoku</h3>
+              <div class="filter-bar">
+                <button class="btn-gold" onclick="openProductModal()"><i class="bi bi-plus me-1"></i>Yeni Ürün</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Ürün</th><th>Kategori</th><th>Fiyat</th><th>Stok</th><th>İşlem</th></tr></thead>
+                <tbody id="productsTableBody"></tbody>
+              </table>
+              <div id="productsEmpty" class="empty-state" style="display:none"><i class="bi bi-bag"></i>Ürün bulunamadı</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="productSalesView" style="display:none">
+          <div class="totals-grid">
+            <div class="totals-box remaining"><div class="tb-label">Toplam Satış</div><div class="tb-value" id="productSalesTotal">0 TL</div></div>
+          </div>
+          <div class="data-table">
+            <div class="table-header">
+              <h3>Ürün Satışları</h3>
+              <div class="filter-bar">
+                <input type="month" class="form-control" id="productSalesMonth" onchange="loadProductSales()">
+                <button class="btn-gold" onclick="clearProductSalesFilters()">Temizle</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Tarih</th><th>Ürün</th><th>Adet</th><th>Birim Fiyat</th><th>Toplam</th><th>Müşteri</th><th>İşlem</th></tr></thead>
+                <tbody id="productSalesTableBody"></tbody>
+              </table>
+              <div id="productSalesEmpty" class="empty-state" style="display:none"><i class="bi bi-receipt"></i>Satış bulunamadı</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PACKAGES -->
+      <div id="sec-packages" class="section-page">
+        <ul class="nav nav-tabs mb-3" id="packageTabs">
+          <li class="nav-item"><a class="nav-link active" href="#" onclick="return showPackageTab('defs')" id="pktab-defs">Paketler</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="return showPackageTab('sales')" id="pktab-sales">Satışlar</a></li>
+        </ul>
+
+        <div id="packageDefsView">
+          <div class="data-table">
+            <div class="table-header">
+              <h3>Paket Tanımları</h3>
+              <div class="filter-bar">
+                <button class="btn-gold" onclick="openPackageModal()"><i class="bi bi-plus me-1"></i>Yeni Paket</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Paket Adı</th><th>Açıklama</th><th>Seans Sayısı</th><th>Fiyat</th><th>İşlem</th></tr></thead>
+                <tbody id="packagesTableBody"></tbody>
+              </table>
+              <div id="packagesEmpty" class="empty-state" style="display:none"><i class="bi bi-box-seam"></i>Paket bulunamadı</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="packageSalesView" style="display:none">
+          <div class="totals-grid">
+            <div class="totals-box remaining"><div class="tb-label">Toplam Satış</div><div class="tb-value" id="packageSalesTotal">0 TL</div></div>
+          </div>
+          <div class="data-table">
+            <div class="table-header">
+              <h3>Paket Satışları</h3>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Müşteri</th><th>Paket</th><th>Seans</th><th>Fiyat</th><th>Tarih</th><th>İşlem</th></tr></thead>
+                <tbody id="packageSalesTableBody"></tbody>
+              </table>
+              <div id="packageSalesEmpty" class="empty-state" style="display:none"><i class="bi bi-receipt"></i>Satış bulunamadı</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div id="sec-staff" class="section-page">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>Personel Yönetimi</h3>
+            <button class="btn-gold" onclick="openStaffModal()"><i class="bi bi-plus me-1"></i>Personel Ekle</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>#</th><th>İsim</th><th>Unvan</th><th>Durum</th><th>İşlem</th></tr></thead>
+              <tbody id="staffTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICES -->
+      <div id="sec-services" class="section-page">
+        <div class="data-table">
+          <div class="table-header">
+            <h3>Hizmet Yönetimi</h3>
+            <button class="btn-gold" onclick="openServiceModal()"><i class="bi bi-plus me-1"></i>Hizmet Ekle</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>#</th><th>Hizmet</th><th>Süre</th><th>Ücret</th><th>Durum</th><th>İşlem</th></tr></thead>
+              <tbody id="servicesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKING HOURS -->
+      <div id="sec-hours" class="section-page">
+        <div class="data-table">
+          <div class="table-header"><h3>Çalışma Saatleri</h3></div>
+          <div class="p-4">
+            <table class="days-table w-100">
+              <thead><tr><th>Gün</th><th>Açılış</th><th>Kapanış</th><th>Kapalı</th></tr></thead>
+              <tbody id="hoursTableBody"></tbody>
+            </table>
+            <button class="btn-gold mt-4" onclick="saveWorkingHours()"><i class="bi bi-save me-2"></i>Kaydet</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHATSAPP -->
+      <div id="sec-whatsapp" class="section-page">
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="waTabs">
+          <li class="nav-item">
+            <a class="nav-link active" onclick="showWATab('meta')" id="tab-meta" href="#">
+              <i class="bi bi-cloud-check me-1"></i>Meta Cloud API (Onerilir - Ucuz)
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="showWATab('twilio')" id="tab-twilio" href="#">
+              <i class="bi bi-send me-1"></i>Twilio
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="showWATab('waweb')" id="tab-waweb" href="#">
+              <i class="bi bi-whatsapp me-1"></i>Kendi WA Hesabim
+            </a>
+          </li>
+        </ul>
+
+        <!-- META CLOUD API PANEL -->
+        <div id="wa-tab-meta">
+          <div class="row g-4">
+            <div class="col-lg-7">
+              <div class="data-table p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <h3 class="mb-0">Meta WhatsApp Cloud API Ayarlari</h3>
+                  <div id="metaStatusBadge"></div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Phone Number ID</label>
+                  <input type="text" class="form-control font-monospace" id="meta-phone-id" placeholder="1162715916931794">
+                  <div class="form-text">Meta for Developers &gt; WhatsApp &gt; API Setup sayfasindan kopyalayin</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Access Token</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control font-monospace" id="meta-token" placeholder="Meta Access Token">
+                    <button class="btn btn-outline-secondary" type="button" onclick="toggleMetaTokenVis()">
+                      <i class="bi bi-eye" id="metaTokenEyeIcon"></i>
+                    </button>
+                  </div>
+                  <div class="form-text">Kaydetmek icin yeni token girin. Bos birakirsaniz mevcut token korunur. Gecici token 24 saat gecerlidir, kalici token icin System User olusturulmasi gerekir.</div>
+                </div>
+                <div class="mb-4">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="meta-active" role="switch">
+                    <label class="form-check-label fw-semibold" for="meta-active">Meta Cloud API aktif (mesajlar oncelikle bununla gonderilir)</label>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn-gold" onclick="saveMetaSettings()">
+                    <i class="bi bi-save me-1"></i>Kaydet
+                  </button>
+                  <button class="btn btn-outline-secondary" onclick="showMetaTestModal()">
+                    <i class="bi bi-send me-1"></i>Test Mesaji Gonder (hello_world)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-5">
+              <div class="data-table p-4 mb-4">
+                <h5 class="mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Nasil Kurulur?</h5>
+                <ol class="small text-muted ps-3 mb-0" style="line-height:2">
+                  <li><a href="https://developers.facebook.com" target="_blank" class="text-primary">developers.facebook.com</a> adresinden uygulama olusturun</li>
+                  <li>WhatsApp urununu ekleyin (API Setup sayfasi acilir)</li>
+                  <li><strong>Phone number ID</strong> ve <strong>Access Token</strong>&rsquo;i kopyalayin</li>
+                  <li>Test edilecek numarayi "Manage phone number list" ile dogrulayin</li>
+                  <li>Yukaridaki formu doldurup <strong>Kaydet</strong>&rsquo;e basin</li>
+                  <li>Test mesaji gondererek kontrol edin</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TWILIO PANEL -->
+        <div id="wa-tab-twilio" style="display:none">
+          <div class="row g-4">
+            <div class="col-lg-7">
+              <div class="data-table p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <h3 class="mb-0">Twilio WhatsApp Ayarlari</h3>
+                  <div id="twilioStatusBadge"></div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Account SID</label>
+                  <input type="text" class="form-control font-monospace" id="twilio-sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                  <div class="form-text">Twilio Console &gt; Account Info bolumunden kopyalayin</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Auth Token</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control font-monospace" id="twilio-token" placeholder="Twilio Auth Token">
+                    <button class="btn btn-outline-secondary" type="button" onclick="toggleTokenVis()">
+                      <i class="bi bi-eye" id="tokenEyeIcon"></i>
+                    </button>
+                  </div>
+                  <div class="form-text">Kaydetmek icin yeni token girin. Bos birakirsaniz mevcut token korunur.</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Gonderen Numara</label>
+                  <select class="form-select" id="twilio-from">
+                    <option value="whatsapp:+14155238886">Sandbox (Test) - whatsapp:+14155238886</option>
+                    <option value="custom">Ozel numara (Uretim)</option>
+                  </select>
+                  <div class="form-text" id="customFromHelp" style="display:none">
+                    <input type="text" class="form-control mt-1" id="twilio-from-custom" placeholder="whatsapp:+905XXXXXXXXX">
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="twilio-active" role="switch">
+                    <label class="form-check-label fw-semibold" for="twilio-active">Twilio aktif (mesajlar Twilio ile gonderilir)</label>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn-gold" onclick="saveTwilioSettings()">
+                    <i class="bi bi-save me-1"></i>Kaydet
+                  </button>
+                  <button class="btn btn-outline-secondary" onclick="showTestModal()">
+                    <i class="bi bi-send me-1"></i>Test Mesaji Gonder
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-5">
+              <div class="data-table p-4 mb-4">
+                <h5 class="mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Twilio Nasil Kurulur?</h5>
+                <ol class="small text-muted ps-3 mb-0" style="line-height:2">
+                  <li><a href="https://www.twilio.com/try-twilio" target="_blank" class="text-primary">twilio.com/try-twilio</a> adresine gidin</li>
+                  <li>Ucretsiz hesap acin ($15 kredi gelir)</li>
+                  <li>Console&rsquo;dan <strong>Account SID</strong> ve <strong>Auth Token</strong>&rsquo;i kopyalayin</li>
+                  <li>Sol menuden <strong>Messaging &gt; Try it out &gt; Send a WhatsApp message</strong>&rsquo;e gidin</li>
+                  <li>Telefonunuzdan <code>join &lt;kelime&gt;</code> yazarak Sandbox&rsquo;a katilin</li>
+                  <li>Yukaridaki formu doldurup <strong>Kaydet</strong>&rsquo;e basin</li>
+                  <li>Test mesaji gondererek kontrol edin</li>
+                </ol>
+              </div>
+              <div class="data-table p-4">
+                <h5 class="mb-2">Fiyatlandirma</h5>
+                <table class="table table-sm small mb-0">
+                  <tbody>
+                    <tr><td>Baslangic kredisi</td><td class="text-success fw-semibold">$15 Ucretsiz</td></tr>
+                    <tr><td>Mesaj ucreti (TR)</td><td>~$0.005 / mesaj</td></tr>
+                    <tr><td>$15 ile kac mesaj</td><td class="fw-semibold">~3.000 mesaj</td></tr>
+                    <tr><td>Uretim icin</td><td>WA Business dogrulama gerekli</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WHATSAPP-WEB.JS PANEL -->
+        <div id="wa-tab-waweb" style="display:none">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="data-table p-4">
+                <h3 class="mb-4"><i class="bi bi-whatsapp text-success me-2"></i>Kendi WhatsApp Hesabim</h3>
+                <p class="text-muted small mb-3">Kendi WhatsApp hesabinizla baglanin. Ucretsizdir ancak sunucunun surekli acik olmasi gerekir.</p>
+                <div id="waStatusBox" class="mb-4">
+                  <div class="wa-status loading"><i class="bi bi-hourglass-split"></i> Durum kontrol ediliyor...</div>
+                </div>
+                <div id="waQRSection" style="display:none">
+                  <p class="text-muted small mb-3">WhatsApp'i baglamak icin telefonunuzdan QR kodu okutun:</p>
+                  <div style="text-align:center; background:#f8f9fa; border-radius:12px; padding:20px">
+                    <img id="waQRImage" src="" alt="QR Kod" style="max-width:250px; width:100%">
+                  </div>
+                  <p class="text-muted small mt-3"><strong>WhatsApp</strong> &gt; <strong>Bagli Cihazlar</strong> &gt; <strong>Cihaz Bagla</strong></p>
+                </div>
+                <div id="waConnectedSection" style="display:none">
+                  <div class="wa-status connected mb-3"><i class="bi bi-check-circle-fill"></i> WhatsApp bagli ve hazir!</div>
+                  <p class="text-muted small">Randevular onaylandiginda otomatik mesaj gonderilecektir.</p>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm mt-3" onclick="checkWAStatus()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Durumu Yenile
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="data-table p-4">
+                <h5 class="mb-3">Bilgi</h5>
+                <ul class="small text-muted ps-3" style="line-height:2">
+                  <li>Sunucu ilk basladiginda terminalde QR kodu gozukur</li>
+                  <li>Telefonunuzdan QR&rsquo;i okutun</li>
+                  <li>Oturum kapanirsa yeniden QR okutmaniz gerekir</li>
+                  <li>Twilio ile birlikte kullanilabilir (Twilio basarisiz olursa bu devreye girer)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="sec-settings" class="section-page">
+        <div class="row g-4">
+          <div class="col-md-8">
+            <div class="data-table p-4">
+              <h3 class="mb-4">Dükkan Ayarları</h3>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Dükkan Adı</label>
+                  <input type="text" class="form-control" id="set-shop_name">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Telefon</label>
+                  <input type="text" class="form-control" id="set-shop_phone" placeholder="05XX XXX XX XX">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Seans Süresi (dk)</label>
+                  <select class="form-select" id="set-slot_duration">
+                    <option value="15">15 dk</option>
+                    <option value="20">20 dk</option>
+                    <option value="30">30 dk</option>
+                    <option value="45">45 dk</option>
+                    <option value="60">60 dk</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Adres</label>
+                  <textarea class="form-control" id="set-shop_address" rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Kaç gün öncesine randevu alınabilsin?</label>
+                  <input type="number" class="form-control" id="set-advance_booking_days" min="1" max="90">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Yeni Randevu Bildirim Numarası (WhatsApp)</label>
+                  <input type="text" class="form-control" id="set-owner_notify_phone" placeholder="05XX XXX XX XX">
+                  <div class="form-text">Yeni randevu gelince bu numaraya WhatsApp bildirimi gider. Bos birakirsaniz bildirim gitmez.</div>
+                </div>
+              </div>
+              <button class="btn-gold mt-4" onclick="saveSettings()"><i class="bi bi-save me-2"></i>Ayarları Kaydet</button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="data-table p-4">
+              <h3 class="mb-4">Şifre Değiştir</h3>
+              <div class="mb-3">
+                <label class="form-label">Mevcut Şifre</label>
+                <input type="password" class="form-control" id="pw-current">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Yeni Şifre</label>
+                <input type="password" class="form-control" id="pw-new">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Yeni Şifre (Tekrar)</label>
+                <input type="password" class="form-control" id="pw-confirm">
+              </div>
+              <button class="btn-gold w-100" onclick="changePassword()"><i class="bi bi-lock me-2"></i>Şifreyi Güncelle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div><!-- /app-layout -->
+
+<!-- Approve Modal -->
+<!-- Calendar Appointment Modal -->
+<div class="modal fade" id="calApptModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar3 me-2"></i>Randevu Detayı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="calApptBody"></div>
+      <div class="modal-footer" id="calApptActions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Calendar Settings Bottom Sheet -->
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="calSettingsSheet" style="max-height:70vh">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title"><i class="bi bi-sliders me-2"></i>Takvim Ayarları</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <label class="form-label">Başlangıç Saati</label>
+        <select class="form-select" id="calSetStart"></select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Bitiş Saati</label>
+        <select class="form-select" id="calSetEnd"></select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Satır Yüksekliği</label>
+        <select class="form-select" id="calSetHeight">
+          <option value="44">Dar</option>
+          <option value="56">Normal</option>
+          <option value="72">Geniş</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Renklendirme</label>
+        <select class="form-select" id="calSetColorBy">
+          <option value="staff">Personele Göre</option>
+          <option value="status">Duruma Göre</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-gold mt-4" onclick="calSaveSettings()"><i class="bi bi-save me-2"></i>Kaydet</button>
+  </div>
+</div>
+
+<div class="modal fade" id="approveModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Randevu Onayla</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="approveDetails" class="mb-3"></div>
+        <label class="form-label">Müşteriye Not (isteğe bağlı)</label>
+        <textarea class="form-control" id="approveNote" rows="3" placeholder="Örn: Lütfen 5 dk erken gelin..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-success" onclick="confirmApprove()">
+          <i class="bi bi-check-circle me-1"></i>Onayla & WhatsApp Gönder
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#dc3545">
+        <h5 class="modal-title"><i class="bi bi-x-circle me-2"></i>Randevu Reddet</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Red Sebebi (isteğe bağlı)</label>
+        <textarea class="form-control" id="rejectNote" rows="3" placeholder="Örn: Belirtilen saat dolu..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-danger" onclick="confirmReject()">
+          <i class="bi bi-x-circle me-1"></i>Reddet
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Hizmet Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Hizmet</label>
+          <select class="form-select" id="addServiceSelect"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Personel</label>
+          <select class="form-select" id="addServiceStaff"></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn-gold" onclick="confirmAddService()"><i class="bi bi-plus me-1"></i>Ekle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentModalTitle"><i class="bi bi-cash-coin me-2"></i>Tahsilat Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="paymentType">
+        <div class="mb-3">
+          <label class="form-label">Tutar (TL)</label>
+          <input type="number" class="form-control" id="paymentAmount" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Not (isteğe bağlı)</label>
+          <input type="text" class="form-control" id="paymentNote" placeholder="Örn: Nakit">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn-gold" onclick="confirmAddPayment()"><i class="bi bi-check-lg me-1"></i>Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Meta Cloud API Test Modal -->
+<div class="modal fade" id="metaTestModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-send me-2"></i>Test Mesaji (hello_world)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Test Edilecek Telefon Numarasi</label>
+        <input type="tel" class="form-control" id="metaTestPhone" placeholder="05XX XXX XX XX">
+        <div class="form-text">Bu numara Meta'da dogrulanmis (verified) olmalidir</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Iptal</button>
+        <button class="btn-gold" onclick="sendMetaTest()"><i class="bi bi-send me-1"></i>Gonder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Twilio Test Modal -->
+<div class="modal fade" id="testModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-send me-2"></i>Test Mesaji</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Test Edilecek Telefon Numarasi</label>
+        <input type="tel" class="form-control" id="testPhone" placeholder="05XX XXX XX XX">
+        <div class="form-text">Bu numara Twilio Sandbox'a katilmis olmalidir</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Iptal</button>
+        <button class="btn-gold" onclick="sendTwilioTest()"><i class="bi bi-send me-1"></i>Gonder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="customerModalTitle">Yeni Müşteri</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="customerId">
+        <div class="mb-3">
+          <label class="form-label">İsim *</label>
+          <input type="text" class="form-control" id="customerName" placeholder="Ahmet Yılmaz">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Telefon *</label>
+          <input type="text" class="form-control" id="customerPhone" placeholder="0532 123 45 67">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">E-posta</label>
+          <input type="email" class="form-control" id="customerEmail" placeholder="ornek@mail.com">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveCustomer()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loyalty Adjust Modal -->
+<div class="modal fade" id="loyaltyAdjustModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Parapuan Ekle / Çıkar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Tutar (TL) *</label>
+          <input type="number" class="form-control" id="loyaltyAdjustAmount" step="0.01" placeholder="Eklemek için pozitif, çıkarmak için negatif yazın">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Not</label>
+          <input type="text" class="form-control" id="loyaltyAdjustNote" placeholder="Örn: Doğum günü hediyesi">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveLoyaltyAdjust()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Appointment / Adisyon Modal -->
+<div class="modal fade" id="newAppointmentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newAppointmentModalTitle">Yeni Randevu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="newApptMode" value="appointment">
+        <button type="button" class="btn btn-outline-secondary w-100 mb-3" id="newApptContactBtn" onclick="pickContactForAppt()" style="display:none">
+          <i class="bi bi-person-lines-fill me-1"></i>Rehberden Seç
+        </button>
+        <form autocomplete="on" onsubmit="return false">
+          <div class="mb-3">
+            <label class="form-label">Müşteri Adı *</label>
+            <input type="text" class="form-control" id="newApptName" name="name" autocomplete="name" placeholder="Ahmet Yılmaz">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Telefon *</label>
+            <input type="tel" class="form-control" id="newApptPhone" name="tel" autocomplete="tel" placeholder="0532 123 45 67">
+          </div>
+        </form>
+        <div class="mb-3">
+          <label class="form-label">Hizmet</label>
+          <select class="form-select" id="newApptService" onchange="loadNewApptSlots()"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Personel</label>
+          <select class="form-select" id="newApptStaff" onchange="loadNewApptSlots()"></select>
+        </div>
+        <div class="row" id="newApptDateTimeRow">
+          <div class="col-6 mb-3">
+            <label class="form-label">Tarih</label>
+            <input type="date" class="form-control" id="newApptDate" onchange="loadNewApptSlots()">
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label">Saat</label>
+            <select class="form-select" id="newApptTime"></select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Not</label>
+          <textarea class="form-control" id="newApptNotes" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveNewAppointment()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal fade" id="expenseModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="expenseModalTitle">Yeni Masraf</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="expenseId">
+        <div class="mb-3">
+          <label class="form-label">Kategori *</label>
+          <select class="form-select" id="expenseCategorySelect">
+            <option value="Kira">Kira</option>
+            <option value="Fatura">Fatura</option>
+            <option value="Malzeme">Malzeme</option>
+            <option value="Maaş/Prim">Maaş/Prim</option>
+            <option value="Bakım/Onarım">Bakım/Onarım</option>
+            <option value="Vergi/SGK">Vergi/SGK</option>
+            <option value="Diğer">Diğer</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tutar (TL) *</label>
+          <input type="number" class="form-control" id="expenseAmount" placeholder="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tarih *</label>
+          <input type="date" class="form-control" id="expenseDate">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Açıklama</label>
+          <textarea class="form-control" id="expenseDescription" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveExpense()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productModalTitle">Yeni Ürün</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="productId">
+        <div class="mb-3">
+          <label class="form-label">Ürün Adı *</label>
+          <input type="text" class="form-control" id="productName">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Kategori</label>
+          <input type="text" class="form-control" id="productCategory" placeholder="Örn: Bakım, Şekillendirme">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Fiyat (TL) *</label>
+          <input type="number" class="form-control" id="productPrice" placeholder="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Stok Adedi *</label>
+          <input type="number" class="form-control" id="productStock" placeholder="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveProduct()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Sale Modal -->
+<div class="modal fade" id="productSaleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Yeni Ürün Satışı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Ürün *</label>
+          <select class="form-select" id="saleProductId" onchange="updateSaleProductInfo()"></select>
+          <div class="form-text" id="saleProductInfo"></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Adet *</label>
+          <input type="number" class="form-control" id="saleQuantity" min="1" value="1" oninput="updateSaleProductInfo()">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Müşteri Adı</label>
+          <input type="text" class="form-control" id="saleCustomerName">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Telefon</label>
+          <input type="text" class="form-control" id="saleCustomerPhone">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tarih *</label>
+          <input type="date" class="form-control" id="saleDate">
+        </div>
+        <div class="totals-grid">
+          <div class="totals-box"><div class="tb-label">Toplam</div><div class="tb-value" id="saleTotalPreview">0 TL</div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveProductSale()">Satışı Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Package Modal -->
+<div class="modal fade" id="packageModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="packageModalTitle">Yeni Paket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="packageId">
+        <div class="mb-3">
+          <label class="form-label">Paket Adı *</label>
+          <input type="text" class="form-control" id="packageName">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Açıklama</label>
+          <textarea class="form-control" id="packageDescription" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Seans Sayısı *</label>
+          <input type="number" class="form-control" id="packageSessionCount" placeholder="0" min="1">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Fiyat (TL) *</label>
+          <input type="number" class="form-control" id="packagePrice" placeholder="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="savePackage()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Package Sale Modal -->
+<div class="modal fade" id="packageSaleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Yeni Paket Satışı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Paket *</label>
+          <select class="form-select" id="pkgSalePackageId" onchange="updatePackageSaleInfo()"></select>
+          <div class="form-text" id="pkgSaleInfo"></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Müşteri Adı *</label>
+          <input type="text" class="form-control" id="pkgSaleCustomerName">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Telefon *</label>
+          <input type="text" class="form-control" id="pkgSaleCustomerPhone">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tarih *</label>
+          <input type="date" class="form-control" id="pkgSaleDate">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="savePackageSale()">Satışı Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Staff Modal -->
+<div class="modal fade" id="staffModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staffModalTitle">Personel Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="staffId">
+        <div class="mb-3">
+          <label class="form-label">İsim *</label>
+          <input type="text" class="form-control" id="staffName" placeholder="Ahmet Usta">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Unvan</label>
+          <input type="text" class="form-control" id="staffTitle" placeholder="Berber">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Durum</label>
+          <select class="form-select" id="staffActive">
+            <option value="1">Aktif</option>
+            <option value="0">Pasif</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveStaff()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Modal -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="serviceModalTitle">Hizmet Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="serviceId">
+        <div class="mb-3">
+          <label class="form-label">Hizmet Adı *</label>
+          <input type="text" class="form-control" id="serviceName" placeholder="Saç Kesimi">
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label">Süre (dk)</label>
+            <input type="number" class="form-control" id="serviceDuration" value="30" min="5" step="5">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Ücret (₺)</label>
+            <input type="number" class="form-control" id="servicePrice" value="0" min="0" step="10">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Durum</label>
+          <select class="form-select" id="serviceActive">
+            <option value="1">Aktif</option>
+            <option value="0">Pasif</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button class="btn-gold" onclick="saveService()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastContainer" style="position:fixed; top:20px; right:20px; z-index:9999"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentApproveId = null;
+let currentRejectId = null;
+const DAY_NAMES = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+async function login() {
+  const pw = document.getElementById('loginPassword').value;
+  const res = await fetch('/api/admin/login', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ password: pw })
+  });
+  if (res.ok) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'flex';
+    initApp();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.reload();
+}
+
+async function checkAuth() {
+  const res = await fetch('/api/admin/check');
+  const data = await res.json();
+  if (data.authenticated) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'flex';
+    initApp();
+  }
+}
+
+function initApp() {
+  loadDashboard();
+  checkWAStatus();
+  loadMetaSettings();
+  loadNotifications();
+  setInterval(checkWAStatus, 10000);
+  setInterval(loadDashboard, 30000);
+  setInterval(loadNotifications, 30000);
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  
+  const titles = {
+    dashboard: 'Dashboard', new: 'Yeni İşlem', calendar: 'Takvim', appointments: 'Tüm Randevular', today: 'Bugünün Randevuları',
+    customers: 'Müşteriler', 'customer-detail': 'Müşteri Detayı', adisyonlar: 'Adisyonlar', expenses: 'Masraflar', products: 'Ürünler', packages: 'Paketler',
+    staff: 'Personel', services: 'Hizmetler', hours: 'Çalışma Saatleri',
+    whatsapp: 'WhatsApp', settings: 'Ayarlar'
+  };
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+
+  if (name === 'calendar') loadCalendar();
+  else if (name === 'appointments') loadAppointments();
+  else if (name === 'today') loadToday();
+  else if (name === 'customers') loadCustomers();
+  else if (name === 'customer-detail') loadCustomerDetail();
+  else if (name === 'adisyonlar') loadAdisyonlar();
+  else if (name === 'expenses') loadExpenses();
+  else if (name === 'products') showProductTab(currentProductTab);
+  else if (name === 'packages') showPackageTab(currentPackageTab);
+  else if (name === 'staff') loadStaff();
+  else if (name === 'services') loadServices();
+  else if (name === 'hours') loadWorkingHours();
+  else if (name === 'settings') loadSettings();
+  else if (name === 'dashboard') loadDashboard();
+
+  if (window.innerWidth < 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show', sidebar.classList.contains('open'));
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const res = await fetch('/api/admin/dashboard');
+  const data = await res.json();
+  document.getElementById('stat-pending').textContent = data.total_pending || 0;
+  document.getElementById('stat-today').textContent = data.today_total || 0;
+  document.getElementById('stat-approved').textContent = data.today_approved || 0;
+  document.getElementById('stat-week').textContent = data.week_total || 0;
+
+  const badge = document.getElementById('pendingBadge');
+  if (data.total_pending > 0) { badge.textContent = data.total_pending; badge.style.display = 'inline'; }
+  else badge.style.display = 'none';
+
+  const container = document.getElementById('recentAppointments');
+  if (!data.recent || data.recent.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="bi bi-calendar-check"></i>Bekleyen randevu yok</div>';
+    return;
+  }
+  container.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>
+    <th>Müşteri</th><th>Telefon</th><th>Hizmet</th><th>Tarih</th><th>Saat</th><th>İşlem</th>
+  </tr></thead><tbody>
+    ${data.recent.map(a => `<tr>
+      <td><strong>${esc(a.customer_name)}</strong></td>
+      <td><a class="customer-phone-link" href="https://wa.me/90${a.customer_phone.replace(/\D/g,'').replace(/^0/,'')}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(a.customer_phone)}</a></td>
+      <td>${esc(a.service_name||'Belirtilmedi')}</td>
+      <td>${formatDateTR(a.appointment_date)}</td>
+      <td><strong>${a.appointment_time}</strong></td>
+      <td class="d-flex gap-1">
+        <button class="btn-approve" onclick="openApprove(${a.id}, '${esc(a.customer_name)}', '${esc(a.service_name||'')}', '${a.appointment_date}', '${a.appointment_time}')"><i class="bi bi-check-lg me-1"></i>Onayla</button>
+        <button class="btn-reject" onclick="openReject(${a.id})"><i class="bi bi-x-lg me-1"></i>Reddet</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+// ── Appointments ───────────────────────────────────────────────────────────────
+async function loadAppointments() {
+  const status = document.getElementById('filterStatus').value;
+  const date = document.getElementById('filterDate').value;
+  let url = '/api/admin/appointments?';
+  if (status) url += 'status=' + status + '&';
+  if (date) url += 'date=' + date + '&';
+
+  const res = await fetch(url);
+  const data = await res.json();
+  const tbody = document.getElementById('appointmentsTableBody');
+  const empty = document.getElementById('appointmentsEmpty');
+
+  if (!data.appointments || data.appointments.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = data.appointments.map(a => `
+    <tr>
+      <td><small class="text-muted">#${a.id}</small></td>
+      <td><strong>${esc(a.customer_name)}</strong></td>
+      <td><a class="customer-phone-link" href="https://wa.me/90${a.customer_phone.replace(/\D/g,'').replace(/^0/,'')}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(a.customer_phone)}</a></td>
+      <td>${esc(a.service_name||'-')}</td>
+      <td>${esc(a.staff_name||'Herhangi')}</td>
+      <td>${formatDateTR(a.appointment_date)}</td>
+      <td><strong>${a.appointment_time}</strong></td>
+      <td><span class="badge-status badge-${a.status}">${statusLabel(a.status)}</span></td>
+      <td>
+        <div class="d-flex gap-1 flex-wrap">
+          ${a.status === 'pending' ? `
+            <button class="btn-approve" onclick="openApprove(${a.id},'${esc(a.customer_name)}','${esc(a.service_name||'')}','${a.appointment_date}','${a.appointment_time}')"><i class="bi bi-check-lg"></i></button>
+            <button class="btn-reject" onclick="openReject(${a.id})"><i class="bi bi-x-lg"></i></button>
+          ` : ''}
+          ${a.status === 'approved' ? `
+            <button class="btn-wa" onclick="sendWAManual(${a.id})"><i class="bi bi-whatsapp"></i></button>
+          ` : ''}
+          <button class="btn btn-sm btn-outline-secondary" onclick="openAppointmentDetail(${a.id}, 'appointments')"><i class="bi bi-eye"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function clearFilters() {
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterDate').value = '';
+  loadAppointments();
+}
+
+// ── Today ──────────────────────────────────────────────────────────────────────
+async function loadToday() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('todayDateLabel').textContent = formatDateTR(today);
+  const res = await fetch('/api/admin/appointments?date=' + today);
+  const data = await res.json();
+  const tbody = document.getElementById('todayTableBody');
+  const empty = document.getElementById('todayEmpty');
+
+  if (!data.appointments || data.appointments.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = data.appointments.map(a => `
+    <tr>
+      <td><strong>${a.appointment_time}</strong></td>
+      <td>${esc(a.customer_name)}</td>
+      <td><a class="customer-phone-link" href="https://wa.me/90${a.customer_phone.replace(/\D/g,'').replace(/^0/,'')}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(a.customer_phone)}</a></td>
+      <td>${esc(a.service_name||'-')}</td>
+      <td>${esc(a.staff_name||'-')}</td>
+      <td><span class="badge-status badge-${a.status}">${statusLabel(a.status)}</span></td>
+      <td>
+        ${a.status === 'pending' ? `
+          <button class="btn-approve" onclick="openApprove(${a.id},'${esc(a.customer_name)}','${esc(a.service_name||'')}','${a.appointment_date}','${a.appointment_time}')"><i class="bi bi-check-lg me-1"></i>Onayla</button>
+          <button class="btn-reject ms-1" onclick="openReject(${a.id})"><i class="bi bi-x-lg"></i></button>
+        ` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── Customers (Müşteriler) ─────────────────────────────────────────────────────
+let currentCustomerId = null;
+let currentCustomerData = null;
+
+async function loadCustomers() {
+  const q = document.getElementById('customerSearch').value.trim();
+  const res = await fetch('/api/admin/customers' + (q ? '?q=' + encodeURIComponent(q) : ''));
+  const data = await res.json();
+  const tbody = document.getElementById('customersTableBody');
+  const empty = document.getElementById('customersEmpty');
+
+  if (!data.customers || data.customers.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = data.customers.map(c => `
+    <tr style="cursor:pointer" onclick="openCustomerDetail(${c.id})">
+      <td><strong>${esc(c.name)}</strong></td>
+      <td><a class="customer-phone-link" href="https://wa.me/90${c.phone.replace(/^0/,'')}" target="_blank" onclick="event.stopPropagation()"><i class="bi bi-telephone-fill me-1"></i>${esc(c.phone)}</a></td>
+      <td>${formatMoney(c.loyalty_balance || 0)} TL</td>
+    </tr>
+  `).join('');
+}
+
+function openCustomerModal() {
+  document.getElementById('customerModalTitle').textContent = 'Yeni Müşteri';
+  document.getElementById('customerId').value = '';
+  document.getElementById('customerName').value = '';
+  document.getElementById('customerPhone').value = '';
+  document.getElementById('customerEmail').value = '';
+  new bootstrap.Modal(document.getElementById('customerModal')).show();
+}
+
+function openEditCustomerModal() {
+  const c = currentCustomerData.customer;
+  document.getElementById('customerModalTitle').textContent = 'Müşteriyi Düzenle';
+  document.getElementById('customerId').value = c.id;
+  document.getElementById('customerName').value = c.name;
+  document.getElementById('customerPhone').value = c.phone;
+  document.getElementById('customerEmail').value = c.email || '';
+  new bootstrap.Modal(document.getElementById('customerModal')).show();
+}
+
+async function saveCustomer() {
+  const id = document.getElementById('customerId').value;
+  const body = {
+    name: document.getElementById('customerName').value.trim(),
+    phone: document.getElementById('customerPhone').value.trim(),
+    email: document.getElementById('customerEmail').value.trim()
+  };
+  if (!body.name || !body.phone) { showToast('İsim ve telefon zorunlu', 'danger'); return; }
+
+  const res = await fetch(id ? `/api/admin/customers/${id}` : '/api/admin/customers', {
+    method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();
+  showToast('Kaydedildi', 'success');
+  if (id) loadCustomerDetail(); else loadCustomers();
+}
+
+function openCustomerDetail(id) {
+  document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-customer-detail').classList.add('active');
+  document.getElementById('pageTitle').textContent = 'Müşteri Detayı';
+  currentCustomerId = id;
+  loadCustomerDetail();
+  if (window.innerWidth < 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  }
+}
+
+function closeCustomerDetail() {
+  showSection('customers');
+}
+
+async function loadCustomerDetail() {
+  const res = await fetch(`/api/admin/customers/${currentCustomerId}`);
+  if (!res.ok) { showToast('Müşteri bulunamadı', 'danger'); closeCustomerDetail(); return; }
+  currentCustomerData = await res.json();
+  renderCustomerDetail();
+}
+
+function renderCustomerDetail() {
+  const c = currentCustomerData.customer;
+  const phone = c.phone.replace(/^0/,'');
+  document.getElementById('customerDetailHeader').innerHTML = `
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <h3>${esc(c.name)} <i class="bi bi-pencil-square ms-2" style="cursor:pointer;font-size:0.9rem;color:#999" onclick="openEditCustomerModal()" title="Düzenle"></i></h3>
+        <a class="customer-phone-link" href="https://wa.me/90${phone}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(c.phone)}</a>
+        ${c.email ? `<div class="mt-1 text-muted"><i class="bi bi-envelope me-1"></i>${esc(c.email)}</div>` : ''}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('custTotalCount').textContent = currentCustomerData.appointments.length;
+  document.getElementById('custBalance').textContent = formatMoney(currentCustomerData.balance) + ' TL';
+  document.getElementById('custLoyaltyBalance').textContent = formatMoney(c.loyalty_balance || 0) + ' TL';
+
+  const loyaltyBody = document.getElementById('loyaltyHistoryBody');
+  const loyaltyEmpty = document.getElementById('loyaltyHistoryEmpty');
+  const history = currentCustomerData.loyalty_history || [];
+  if (!history.length) {
+    loyaltyBody.innerHTML = '';
+    loyaltyEmpty.style.display = 'block';
+  } else {
+    loyaltyEmpty.style.display = 'none';
+    loyaltyBody.innerHTML = history.map(h => `
+      <tr>
+        <td>${h.created_at}</td>
+        <td>${h.type === 'manual' ? 'Manuel' : 'Kullanım'}</td>
+        <td style="color:${h.amount >= 0 ? '#0e7c5b' : '#dc3545'}">${h.amount >= 0 ? '+' : ''}${formatMoney(h.amount)} TL</td>
+        <td>${esc(h.note || '-')}</td>
+      </tr>
+    `).join('');
+  }
+
+  document.getElementById('customerNotes').value = c.notes || '';
+  document.getElementById('customerTags').value = c.tags || '';
+
+  const tbody = document.getElementById('customerHistoryBody');
+  const empty = document.getElementById('customerHistoryEmpty');
+  const appts = currentCustomerData.appointments;
+  if (!appts.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    tbody.innerHTML = appts.map(a => `
+      <tr>
+        <td>${formatDateTR(a.date)}</td>
+        <td><strong>${a.time}</strong></td>
+        <td>${esc(a.service_name || '-')}</td>
+        <td>${esc(a.staff_name || 'Herhangi')}</td>
+        <td><span class="badge-status badge-${a.status}">${statusLabel(a.status)}</span></td>
+        <td>${formatMoney(a.totals.total)} TL</td>
+        <td><button class="btn-gold" onclick="openAppointmentDetail(${a.id},'customer-detail')"><i class="bi bi-eye me-1"></i>Detay</button></td>
+      </tr>
+    `).join('');
+  }
+
+  const grid = document.getElementById('customerPhotoGrid');
+  const photoEmpty = document.getElementById('customerPhotoEmpty');
+  const photos = currentCustomerData.photos;
+  if (!photos.length) {
+    grid.innerHTML = '';
+    photoEmpty.style.display = 'block';
+  } else {
+    photoEmpty.style.display = 'none';
+    grid.innerHTML = photos.map(p => `<div class="photo-item"><img src="${p.url}" alt=""></div>`).join('');
+  }
+}
+
+async function saveCustomerNotes() {
+  const body = {
+    notes: document.getElementById('customerNotes').value,
+    tags: document.getElementById('customerTags').value
+  };
+  const res = await fetch(`/api/admin/customers/${currentCustomerId}`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.success) { showToast('Kaydedildi', 'success'); loadCustomerDetail(); }
+}
+
+function openLoyaltyAdjustModal() {
+  document.getElementById('loyaltyAdjustAmount').value = '';
+  document.getElementById('loyaltyAdjustNote').value = '';
+  new bootstrap.Modal(document.getElementById('loyaltyAdjustModal')).show();
+}
+
+async function saveLoyaltyAdjust() {
+  const amount = document.getElementById('loyaltyAdjustAmount').value;
+  const note = document.getElementById('loyaltyAdjustNote').value.trim();
+  if (!amount || +amount === 0) { showToast('Geçerli bir tutar girin', 'danger'); return; }
+
+  const res = await fetch(`/api/admin/customers/${currentCustomerId}/loyalty-adjust`, {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ amount, note })
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('loyaltyAdjustModal')).hide();
+  showToast('Kaydedildi', 'success');
+  loadCustomerDetail();
+}
+
+// ── Yeni Islem (Yeni Randevu / Yeni Adisyon) ─────────────────────────────────────
+function comingSoon() {
+  showToast('Bu özellik yakında eklenecek', 'warning');
+}
+
+async function openNewAppointmentModal(mode) {
+  document.getElementById('newApptMode').value = mode;
+  document.getElementById('newAppointmentModalTitle').textContent = mode === 'adisyon' ? 'Yeni Adisyon' : 'Yeni Randevu';
+  document.getElementById('newApptName').value = '';
+  document.getElementById('newApptPhone').value = '';
+  document.getElementById('newApptContactBtn').style.display = ('contacts' in navigator && 'ContactsManager' in window) ? '' : 'none';
+  document.getElementById('newApptNotes').value = '';
+  document.getElementById('newApptDateTimeRow').style.display = mode === 'adisyon' ? 'none' : '';
+
+  const [svcRes, staffRes] = await Promise.all([
+    fetch('/api/admin/services'), fetch('/api/admin/staff')
+  ]);
+  const svcData = await svcRes.json();
+  const staffData = await staffRes.json();
+  document.getElementById('newApptService').innerHTML = '<option value="">Hizmet seçin</option>' +
+    (svcData.services || []).filter(s => s.active).map(s => `<option value="${s.id}">${esc(s.name)} (${formatMoney(s.price)} TL, ${s.duration} dk)</option>`).join('');
+  document.getElementById('newApptStaff').innerHTML = '<option value="">Herhangi</option>' +
+    (staffData.staff || []).filter(s => s.active).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+
+  if (mode !== 'adisyon') {
+    document.getElementById('newApptDate').value = new Date().toISOString().split('T')[0];
+    loadNewApptSlots();
+  }
+
+  new bootstrap.Modal(document.getElementById('newAppointmentModal')).show();
+}
+
+async function pickContactForAppt() {
+  if (!('contacts' in navigator && 'ContactsManager' in window)) {
+    showToast('Bu cihaz/tarayıcı rehbere erişimi desteklemiyor', 'warning');
+    return;
+  }
+  try {
+    const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+    if (!contacts.length) return;
+    const c = contacts[0];
+    if (c.name && c.name.length) document.getElementById('newApptName').value = c.name[0];
+    if (c.tel && c.tel.length) document.getElementById('newApptPhone').value = c.tel[0].trim();
+  } catch (err) {
+    showToast('Rehbere erişim başarısız', 'danger');
+  }
+}
+
+async function loadNewApptSlots() {
+  if (document.getElementById('newApptMode').value === 'adisyon') return;
+  const date = document.getElementById('newApptDate').value;
+  if (!date) return;
+  const staffId = document.getElementById('newApptStaff').value;
+  const serviceId = document.getElementById('newApptService').value;
+  let url = `/api/slots?date=${date}`;
+  if (staffId) url += `&staff_id=${staffId}`;
+  if (serviceId) url += `&service_id=${serviceId}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const timeSelect = document.getElementById('newApptTime');
+  timeSelect.innerHTML = (data.slots || []).length
+    ? data.slots.map(s => `<option value="${s}">${s}</option>`).join('')
+    : '<option value="">Müsait saat yok</option>';
+}
+
+async function saveNewAppointment() {
+  const mode = document.getElementById('newApptMode').value;
+  const customer_name = document.getElementById('newApptName').value.trim();
+  const customer_phone = document.getElementById('newApptPhone').value.trim();
+  if (!customer_name || !customer_phone) { showToast('İsim ve telefon zorunlu', 'danger'); return; }
+
+  const service_id = document.getElementById('newApptService').value || null;
+  const staff_id = document.getElementById('newApptStaff').value || null;
+  const notes = document.getElementById('newApptNotes').value;
+
+  let date, time, status;
+  if (mode === 'adisyon') {
+    const now = new Date();
+    date = now.toISOString().split('T')[0];
+    time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    status = 'completed';
+  } else {
+    date = document.getElementById('newApptDate').value;
+    time = document.getElementById('newApptTime').value;
+    status = 'approved';
+    if (!date || !time) { showToast('Tarih ve saat seçin', 'danger'); return; }
+  }
+
+  const res = await fetch('/api/admin/appointments', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ customer_name, customer_phone, staff_id, service_id, date, time, notes, status })
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('newAppointmentModal')).hide();
+  showToast(mode === 'adisyon' ? 'Adisyon oluşturuldu' : 'Randevu oluşturuldu', 'success');
+
+  if (mode === 'adisyon') {
+    openAppointmentDetail(data.id, 'adisyonlar');
+    showDetailTab('odeme');
+  } else {
+    openAppointmentDetail(data.id, 'appointments');
+  }
+}
+
+// ── Adisyonlar (POS) ───────────────────────────────────────────────────────────
+let currentAdisyonTab = 'acik';
+
+async function loadAdisyonlar() {
+  const date = document.getElementById('adisyonDate').value;
+  let url = `/api/admin/adisyonlar?bucket=${currentAdisyonTab}`;
+  if (date) url += `&date=${date}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+  const tbody = document.getElementById('adisyonTableBody');
+  const empty = document.getElementById('adisyonEmpty');
+
+  if (!data.adisyonlar || data.adisyonlar.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = data.adisyonlar.map(a => `
+    <tr>
+      <td>
+        <strong>${esc(a.customer_name)}</strong><br>
+        <a class="customer-phone-link" href="https://wa.me/90${a.customer_phone.replace(/\D/g,'').replace(/^0/,'')}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(a.customer_phone)}</a>
+      </td>
+      <td>${esc(a.service_name || '-')}</td>
+      <td>${formatDateTR(a.date)} <strong>${a.time}</strong></td>
+      <td>${formatMoney(a.totals.net)} TL</td>
+      <td>${formatMoney(a.totals.paid)} TL</td>
+      <td><button class="btn-gold" onclick="openAppointmentDetail(${a.id},'adisyonlar')"><i class="bi bi-eye me-1"></i>Detay</button></td>
+    </tr>
+  `).join('');
+}
+
+function showAdisyonTab(tab) {
+  currentAdisyonTab = tab;
+  ['acik','kapatilmis','iptal'].forEach(t => {
+    document.getElementById('atab-' + t).classList.toggle('active', t === tab);
+  });
+  loadAdisyonlar();
+  return false;
+}
+
+function clearAdisyonFilters() {
+  document.getElementById('adisyonDate').value = '';
+  loadAdisyonlar();
+}
+
+// ── Calendar (Takvim) ──────────────────────────────────────────────────────────
+const DAY_NAMES_SHORT = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+const MONTHS_TR = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const CAL_COLORS = ['#c9a227','#4f46e5','#0e9f6e','#e02424','#0694a2','#9333ea','#d97706','#0369a1'];
+const CAL_DEFAULTS = { startHour: 9, endHour: 21, slotHeight: 56, colorBy: 'staff' };
+let calWeekStart = null;
+let calStaffList = [];
+let calAppointmentsCache = {};
+let calSettings = {};
+try { calSettings = JSON.parse(localStorage.getItem('calSettings') || '{}'); } catch (e) { calSettings = {}; }
+
+function calGetMonday(d) {
+  const date = new Date(d);
+  date.setHours(0,0,0,0);
+  const day = date.getDay();
+  date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
+  return date;
+}
+function calDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function calNav(delta) {
+  if (!calWeekStart) calWeekStart = calGetMonday(new Date());
+  calWeekStart.setDate(calWeekStart.getDate() + delta*7);
+  loadCalendar();
+}
+function calToday() {
+  calWeekStart = calGetMonday(new Date());
+  loadCalendar();
+}
+function calJumpToDate(val) {
+  if (!val) return;
+  calWeekStart = calGetMonday(new Date(val + 'T00:00:00'));
+  loadCalendar();
+}
+function calOpenDatePicker() {
+  const input = document.getElementById('calDatePicker');
+  if (calWeekStart) input.value = calDateStr(calWeekStart);
+  if (input.showPicker) input.showPicker(); else input.click();
+}
+
+async function calLoadStaff() {
+  const res = await fetch('/api/admin/staff');
+  const data = await res.json();
+  calStaffList = (data.staff || []).filter(s => s.active);
+  const sel = document.getElementById('calStaffFilter');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">TÜM ÇALIŞANLAR</option>' +
+    calStaffList.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  sel.value = current;
+}
+
+function calUpdateRangeLabel(start, end) {
+  let text;
+  if (start.getMonth() === end.getMonth()) {
+    text = `${start.getDate()}-${end.getDate()} ${MONTHS_TR[start.getMonth()]} ${end.getFullYear()}`;
+  } else {
+    text = `${start.getDate()} ${MONTHS_TR[start.getMonth()]} - ${end.getDate()} ${MONTHS_TR[end.getMonth()]} ${end.getFullYear()}`;
+  }
+  document.getElementById('calRangeText').textContent = text;
+}
+
+async function loadCalendar() {
+  if (!calWeekStart) calWeekStart = calGetMonday(new Date());
+  if (calStaffList.length === 0) await calLoadStaff();
+
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(calWeekStart);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+  calUpdateRangeLabel(days[0], days[6]);
+
+  const staffId = document.getElementById('calStaffFilter').value;
+  let url = `/api/admin/appointments?start_date=${calDateStr(days[0])}&end_date=${calDateStr(days[6])}`;
+  if (staffId) url += `&staff_id=${staffId}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+  const appts = data.appointments || [];
+
+  const byDate = {};
+  days.forEach(d => byDate[calDateStr(d)] = []);
+  calAppointmentsCache = {};
+  appts.forEach(a => {
+    calAppointmentsCache[a.id] = a;
+    if (byDate[a.date]) byDate[a.date].push(a);
+  });
+
+  renderCalGrid(days, byDate);
+}
+
+// Aynı gün içinde çakışan randevuları yan yana sütunlara (lane) dağıtır
+function calLayoutAppts(appts) {
+  const items = [...appts].sort((a,b) => a.time.localeCompare(b.time)).map(a => {
+    const [hh, mm] = a.time.split(':').map(Number);
+    const start = hh*60 + mm;
+    return { ...a, _start: start, _end: start + (a.duration || 30) };
+  });
+
+  let clusters = [], current = [], currentEnd = -1;
+  items.forEach(it => {
+    if (current.length && it._start >= currentEnd) {
+      clusters.push(current);
+      current = [];
+      currentEnd = -1;
+    }
+    current.push(it);
+    currentEnd = Math.max(currentEnd, it._end);
+  });
+  if (current.length) clusters.push(current);
+
+  clusters.forEach(cluster => {
+    const lanesEnd = [];
+    cluster.forEach(it => {
+      let lane = lanesEnd.findIndex(end => end <= it._start);
+      if (lane === -1) { lane = lanesEnd.length; lanesEnd.push(it._end); }
+      else lanesEnd[lane] = it._end;
+      it._lane = lane;
+    });
+    cluster.forEach(it => it._lanes = lanesEnd.length);
+  });
+
+  return items;
+}
+
+function calColorFor(a) {
+  if ((calSettings.colorBy || CAL_DEFAULTS.colorBy) === 'status') {
+    const map = { pending: '#f0ad4e', approved: '#0e9f6e', completed: '#28a745', rejected: '#9ca3af', cancelled: '#9ca3af', no_show: '#9ca3af' };
+    return map[a.status] || '#6b7280';
+  }
+  if (a.staff_id == null) return '#6b7280';
+  const idx = calStaffList.findIndex(s => s.id === a.staff_id);
+  return CAL_COLORS[(idx < 0 ? a.staff_id : idx) % CAL_COLORS.length];
+}
+
+function renderCalGrid(days, byDate) {
+  const startHour = calSettings.startHour ?? CAL_DEFAULTS.startHour;
+  const endHour   = calSettings.endHour   ?? CAL_DEFAULTS.endHour;
+  const slotH     = calSettings.slotHeight ?? CAL_DEFAULTS.slotHeight;
+  const totalH    = (endHour - startHour) * slotH;
+  const todayStr  = calDateStr(new Date());
+
+  let html = '<div class="cal-corner"></div>';
+  days.forEach(d => {
+    const isToday = calDateStr(d) === todayStr;
+    html += `<div class="cal-head ${isToday ? 'is-today' : ''}">
+      <div class="dname">${DAY_NAMES_SHORT[d.getDay()]}</div>
+      <div class="dnum">${d.getDate()}</div>
+    </div>`;
+  });
+
+  html += `<div class="cal-time-col" style="height:${totalH}px">`;
+  for (let h = startHour; h < endHour; h++) {
+    html += `<div class="cal-time-slot" style="height:${slotH}px">${String(h).padStart(2,'0')}:00</div>`;
+  }
+  html += `</div>`;
+
+  days.forEach(d => {
+    const dateStr = calDateStr(d);
+    const isToday = dateStr === todayStr;
+    let col = `<div class="cal-day-col ${isToday ? 'is-today' : ''}" style="height:${totalH}px">`;
+    for (let h = startHour; h < endHour; h++) {
+      col += `<div class="cal-hour-line" style="height:${slotH}px"></div>`;
+    }
+    calLayoutAppts(byDate[dateStr] || []).forEach(a => {
+      const [hh, mm] = a.time.split(':').map(Number);
+      const apptStart = hh*60 + mm;
+      const startMin = apptStart - startHour*60;
+      const durMin = a.duration || 30;
+      const apptEnd = apptStart + durMin;
+      const endTime = `${String(Math.floor(apptEnd/60)).padStart(2,'0')}:${String(apptEnd%60).padStart(2,'0')}`;
+      let top = startMin/60*slotH;
+      let height = durMin/60*slotH;
+      if (top < 0) { height += top; top = 0; }
+      if (top >= totalH) return;
+      if (top + height > totalH) height = totalH - top;
+      if (height < 40) height = 40;
+      const color = calColorFor(a);
+      const widthPct = 100/a._lanes;
+      const leftPct = a._lane*widthPct;
+      const serviceLine = height >= 54 ? `<div class="ca-service">${esc(a.service_name || '')}${a.staff_name ? ' · ' + esc(a.staff_name) : ''}</div>` : '';
+      col += `<div class="cal-appt status-${a.status}" style="top:${top}px; height:${height}px; left:calc(${leftPct}% + 2px); width:calc(${widthPct}% - 4px); --ca-color:${color}" onclick="calShowAppt(${a.id})" title="${esc(a.customer_name)}">
+        <div class="ca-time">${a.time} - ${endTime}</div>
+        <div class="ca-name">${esc(a.customer_name)}</div>
+        ${serviceLine}
+      </div>`;
+    });
+    col += `</div>`;
+    html += col;
+  });
+
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function calShowAppt(id) {
+  const a = calAppointmentsCache[id];
+  if (!a) return;
+  document.getElementById('calApptBody').innerHTML = `
+    <div class="mb-2"><strong>${esc(a.customer_name)}</strong></div>
+    <div class="mb-2"><a class="customer-phone-link" href="https://wa.me/90${a.customer_phone.replace(/\D/g,'').replace(/^0/,'')}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(a.customer_phone)}</a></div>
+    <div class="mb-2"><i class="bi bi-calendar3 me-2 text-muted"></i>${formatDateTR(a.date)} - <strong>${a.time}</strong></div>
+    <div class="mb-2"><i class="bi bi-scissors me-2 text-muted"></i>${esc(a.service_name || 'Belirtilmedi')}${a.price ? ' · ' + a.price + ' TL' : ''}</div>
+    <div class="mb-2"><i class="bi bi-person-badge me-2 text-muted"></i>${esc(a.staff_name || 'Herhangi')}</div>
+    <div class="mb-2"><span class="badge-status badge-${a.status}">${statusLabel(a.status)}</span></div>
+    ${a.notes ? `<div class="mb-2 text-muted"><i class="bi bi-chat-left-text me-2"></i>${esc(a.notes)}</div>` : ''}
+  `;
+
+  let btns = '';
+  if (a.status === 'pending') {
+    btns = `<button class="btn-approve" onclick="bootstrap.Modal.getInstance(document.getElementById('calApptModal')).hide(); openApprove(${a.id},'${esc(a.customer_name)}','${esc(a.service_name||'')}','${a.date}','${a.time}')"><i class="bi bi-check-lg me-1"></i>Onayla</button>
+            <button class="btn-reject" onclick="bootstrap.Modal.getInstance(document.getElementById('calApptModal')).hide(); openReject(${a.id})"><i class="bi bi-x-lg me-1"></i>Reddet</button>`;
+  } else if (a.status === 'approved') {
+    btns = `<button class="btn-wa" onclick="sendWAManual(${a.id})"><i class="bi bi-whatsapp me-1"></i>Hatırlat</button>`;
+  }
+  btns += `<button class="btn-gold" onclick="bootstrap.Modal.getInstance(document.getElementById('calApptModal')).hide(); openAppointmentDetail(${a.id}, 'calendar')"><i class="bi bi-eye me-1"></i>Detay</button>`;
+  document.getElementById('calApptActions').innerHTML = btns;
+  new bootstrap.Modal(document.getElementById('calApptModal')).show();
+}
+
+function openCalSettings() {
+  const startSel = document.getElementById('calSetStart');
+  const endSel = document.getElementById('calSetEnd');
+  if (!startSel.options.length) {
+    for (let h = 0; h < 24; h++) {
+      const label = `${String(h).padStart(2,'0')}:00`;
+      startSel.innerHTML += `<option value="${h}">${label}</option>`;
+      endSel.innerHTML += `<option value="${h}">${label}</option>`;
+    }
+  }
+  startSel.value = calSettings.startHour ?? CAL_DEFAULTS.startHour;
+  endSel.value = calSettings.endHour ?? CAL_DEFAULTS.endHour;
+  document.getElementById('calSetHeight').value = calSettings.slotHeight ?? CAL_DEFAULTS.slotHeight;
+  document.getElementById('calSetColorBy').value = calSettings.colorBy ?? CAL_DEFAULTS.colorBy;
+  new bootstrap.Offcanvas(document.getElementById('calSettingsSheet')).show();
+}
+
+function calSaveSettings() {
+  let startHour = parseInt(document.getElementById('calSetStart').value);
+  let endHour = parseInt(document.getElementById('calSetEnd').value);
+  if (endHour <= startHour) endHour = startHour + 1;
+  calSettings = {
+    startHour, endHour,
+    slotHeight: parseInt(document.getElementById('calSetHeight').value),
+    colorBy: document.getElementById('calSetColorBy').value
+  };
+  localStorage.setItem('calSettings', JSON.stringify(calSettings));
+  bootstrap.Offcanvas.getInstance(document.getElementById('calSettingsSheet')).hide();
+  loadCalendar();
+}
+
+// ── Randevu Detayi ─────────────────────────────────────────────────────────────
+let currentDetailId = null;
+let currentDetailData = null;
+let detailReturnSection = 'calendar';
+
+function formatMoney(v) {
+  v = Number(v) || 0;
+  return (Math.round(v * 100) / 100).toString();
+}
+
+function openAppointmentDetail(id, fromSection) {
+  detailReturnSection = fromSection || 'calendar';
+  document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-appointment-detail').classList.add('active');
+  document.getElementById('pageTitle').textContent = 'Randevu Detayı';
+  currentDetailId = id;
+  showDetailTab('detay');
+  loadAppointmentDetail();
+  if (window.innerWidth < 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  }
+}
+
+function closeAppointmentDetail() {
+  showSection(detailReturnSection);
+}
+
+function showDetailTab(tab) {
+  ['detay','foto','odeme'].forEach(t => {
+    document.getElementById('detail-tab-' + t).style.display = (t === tab) ? '' : 'none';
+    document.getElementById('dtab-' + t).classList.toggle('active', t === tab);
+  });
+  return false;
+}
+
+async function loadAppointmentDetail() {
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}`);
+  if (!res.ok) { showToast('Randevu bulunamadı', 'danger'); closeAppointmentDetail(); return; }
+  currentDetailData = await res.json();
+  renderDetailHeader();
+  renderDetailTab();
+  renderFotoTab();
+  renderOdemeTab();
+}
+
+function renderDetailHeader() {
+  const a = currentDetailData.appointment;
+  const phone = a.customer_phone.replace(/\D/g,'').replace(/^0/,'');
+  document.getElementById('detailHeader').innerHTML = `
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <h3>${esc(a.customer_name)}</h3>
+        <a class="customer-phone-link" href="https://wa.me/90${phone}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(a.customer_phone)}</a>
+        <div class="mt-2 text-muted"><i class="bi bi-calendar3 me-1"></i>${formatDateTR(a.appointment_date)} <strong class="ms-2">${a.appointment_time}</strong></div>
+      </div>
+      <span class="badge-status badge-${a.status}">${statusLabel(a.status)}</span>
+    </div>
+    <div class="detail-actions">
+      ${a.status !== 'completed' ? `<button class="btn-detail btn-checkin" onclick="detailSetStatus('complete')"><i class="bi bi-check-circle me-1"></i>GELDİ</button>` : ''}
+      ${a.status !== 'no_show' ? `<button class="btn-detail btn-noshow" onclick="detailSetStatus('no-show')"><i class="bi bi-x-circle me-1"></i>GELMEDİ</button>` : ''}
+      ${a.status !== 'cancelled' ? `<button class="btn-detail btn-cancelapt" onclick="detailCancel()"><i class="bi bi-slash-circle me-1"></i>İPTAL ET</button>` : ''}
+      <button class="btn-wa" onclick="sendWAManual(${a.id})"><i class="bi bi-whatsapp me-1"></i>WhatsApp ile Hatırlat</button>
+      ${a.customer_id ? `<button class="btn-detail" style="background:#1a1a2e;color:#fff" onclick="openCustomerDetail(${a.customer_id})"><i class="bi bi-person-vcard me-1"></i>Müşteri Profili</button>` : ''}
+    </div>
+  `;
+}
+
+async function detailSetStatus(action) {
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/${action}`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) { showToast('Durum güncellendi', 'success'); loadAppointmentDetail(); }
+}
+
+async function detailCancel() {
+  if (!confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?')) return;
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/cancel`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) { showToast('Randevu iptal edildi', 'warning'); loadAppointmentDetail(); }
+}
+
+function renderDetailTab() {
+  const a = currentDetailData.appointment;
+  const tags = (a.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+  document.getElementById('detail-tab-detay').innerHTML = `
+    <div class="data-table p-4 mb-4">
+      <h3 class="mb-3">Notlar</h3>
+      <textarea class="form-control" id="detailNotes" rows="3" placeholder="Bu randevu hakkında not ekleyin...">${esc(a.internal_note || '')}</textarea>
+      <button class="btn-gold mt-3" onclick="detailSaveInfo()"><i class="bi bi-save me-1"></i>Kaydet</button>
+    </div>
+
+    <div class="data-table p-4 mb-4">
+      <h3 class="mb-3">Hatırlatma & Etiketler</h3>
+      <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" id="detailReminder" role="switch" ${a.reminder_enabled ? 'checked' : ''}>
+        <label class="form-check-label fw-semibold" for="detailReminder">Randevu Hatırlatma (otomatik WhatsApp)</label>
+      </div>
+      <label class="form-label">Randevu Etiketleri</label>
+      <input type="text" class="form-control mb-2" id="detailTags" value="${esc(a.tags || '')}" placeholder="Örn: VIP, Yeni Müşteri (virgülle ayırın)">
+      ${tags.length ? `<div class="mb-3">${tags.map(t => `<span class="tag-chip">${esc(t)}</span>`).join('')}</div>` : ''}
+      <label class="form-label">Takvimdeki Rengi</label>
+      <div class="color-swatches mb-3">
+        <div class="color-swatch ${!a.color ? 'selected' : ''}" style="background:#ccc" onclick="detailPickColor('', this)" title="Varsayılan"></div>
+        ${CAL_COLORS.map(c => `<div class="color-swatch ${a.color === c ? 'selected' : ''}" style="background:${c}" onclick="detailPickColor('${c}', this)"></div>`).join('')}
+      </div>
+      <button class="btn-gold" onclick="detailSaveInfo()"><i class="bi bi-save me-1"></i>Kaydet</button>
+    </div>
+
+    <div class="data-table p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="mb-0">Hizmetler</h3>
+        <button class="btn-gold" onclick="openAddServiceModal()"><i class="bi bi-plus me-1"></i>Bir Hizmet Daha Ekle</button>
+      </div>
+      ${a.services.length ? a.services.map(s => `
+        <div class="service-row">
+          <div class="sr-info">
+            <strong>${esc(s.name)}</strong><br>
+            <small class="text-muted"><i class="bi bi-person-badge me-1"></i>${esc(s.staff_name || 'Herhangi')} &nbsp;|&nbsp; <i class="bi bi-clock me-1"></i>${s.duration} dk</small>
+          </div>
+          <div class="sr-price">${formatMoney(s.price)} TL</div>
+          <button class="btn btn-sm btn-outline-danger" onclick="detailRemoveService(${s.id})"><i class="bi bi-trash"></i></button>
+        </div>
+      `).join('') : '<div class="empty-state"><i class="bi bi-scissors"></i>Hizmet eklenmemiş</div>'}
+    </div>
+  `;
+}
+
+function detailPickColor(color, el) {
+  if (currentDetailData) currentDetailData.appointment.color = color;
+  document.querySelectorAll('#detail-tab-detay .color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function detailSaveInfo() {
+  const body = {
+    internal_note: document.getElementById('detailNotes').value,
+    tags: document.getElementById('detailTags').value,
+    reminder_enabled: document.getElementById('detailReminder').checked,
+    color: currentDetailData.appointment.color || ''
+  };
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.success) { showToast('Kaydedildi', 'success'); loadAppointmentDetail(); }
+}
+
+async function openAddServiceModal() {
+  const [svcRes, staffRes] = await Promise.all([
+    fetch('/api/admin/services'), fetch('/api/admin/staff')
+  ]);
+  const svcData = await svcRes.json();
+  const staffData = await staffRes.json();
+  document.getElementById('addServiceSelect').innerHTML =
+    (svcData.services || []).filter(s => s.active).map(s => `<option value="${s.id}">${esc(s.name)} (${formatMoney(s.price)} TL, ${s.duration} dk)</option>`).join('');
+  document.getElementById('addServiceStaff').innerHTML = '<option value="">Herhangi</option>' +
+    (staffData.staff || []).filter(s => s.active).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  new bootstrap.Modal(document.getElementById('addServiceModal')).show();
+}
+
+async function confirmAddService() {
+  const service_id = document.getElementById('addServiceSelect').value;
+  const staff_id = document.getElementById('addServiceStaff').value;
+  if (!service_id) return;
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/services`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ service_id, staff_id: staff_id || null })
+  });
+  const data = await res.json();
+  if (data.success) {
+    bootstrap.Modal.getInstance(document.getElementById('addServiceModal')).hide();
+    showToast('Hizmet eklendi', 'success');
+    loadAppointmentDetail();
+  } else showToast(data.error || 'Hata', 'danger');
+}
+
+async function detailRemoveService(rowId) {
+  if (!confirm('Bu hizmeti kaldırmak istediğinize emin misiniz?')) return;
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/services/${rowId}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) { showToast('Hizmet kaldırıldı', 'success'); loadAppointmentDetail(); }
+}
+
+function renderFotoTab() {
+  const photos = currentDetailData.photos || [];
+  document.getElementById('detail-tab-foto').innerHTML = `
+    <div class="data-table p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="mb-0">Fotoğraflar</h3>
+        <label class="btn-gold mb-0" style="cursor:pointer">
+          <i class="bi bi-camera me-1"></i>Fotoğraf Ekle
+          <input type="file" accept="image/*" style="display:none" onchange="detailUploadPhoto(this)">
+        </label>
+      </div>
+      ${photos.length ? `<div class="photo-grid">${photos.map(p => `
+        <div class="photo-item">
+          <img src="${p.url}" alt="">
+          <button class="photo-del" onclick="detailDeletePhoto(${p.id})"><i class="bi bi-trash"></i></button>
+        </div>
+      `).join('')}</div>` : '<div class="empty-state"><i class="bi bi-camera"></i>Henüz fotoğraf eklenmemiş</div>'}
+    </div>
+  `;
+}
+
+async function detailUploadPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const fd = new FormData();
+  fd.append('photo', input.files[0]);
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/photos`, { method: 'POST', body: fd });
+  const data = await res.json();
+  input.value = '';
+  if (data.success) { showToast('Fotoğraf eklendi', 'success'); loadAppointmentDetail(); }
+  else showToast(data.error || 'Yükleme başarısız', 'danger');
+}
+
+async function detailDeletePhoto(photoId) {
+  if (!confirm('Bu fotoğrafı silmek istediğinize emin misiniz?')) return;
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/photos/${photoId}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) { showToast('Fotoğraf silindi', 'success'); loadAppointmentDetail(); }
+}
+
+function renderOdemeTab() {
+  const a = currentDetailData.appointment;
+  const t = currentDetailData.totals;
+  const payments = currentDetailData.payments || [];
+  document.getElementById('detail-tab-odeme').innerHTML = `
+    <div class="totals-grid">
+      <div class="totals-box"><div class="tb-label">Toplam</div><div class="tb-value">${formatMoney(t.total)} TL</div></div>
+      <div class="totals-box"><div class="tb-label">Tahsil Edilen</div><div class="tb-value">${formatMoney(t.paid)} TL</div></div>
+      <div class="totals-box remaining"><div class="tb-label">Ödenecek Kalan</div><div class="tb-value">${formatMoney(t.remaining)} TL</div></div>
+    </div>
+
+    <div class="data-table p-4 mb-4">
+      <h3 class="mb-3">İndirim & Parapuan</h3>
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label">İndirim (TL)</label>
+          <input type="number" class="form-control" id="detailDiscount" min="0" step="0.01" value="${formatMoney(a.discount)}">
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Parapuan / Sadakat Kullanımı (TL)</label>
+          <input type="number" class="form-control" id="detailLoyalty" min="0" step="0.01" max="${a.loyalty_available}" value="${formatMoney(a.loyalty_used)}">
+          <div class="form-text">Kullanılabilir Parapuan: ${formatMoney(a.loyalty_available)} TL</div>
+        </div>
+      </div>
+      <button class="btn-gold mt-3" onclick="detailSavePayment()"><i class="bi bi-save me-1"></i>Kaydet</button>
+    </div>
+
+    <div class="data-table p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="mb-0">Tahsilat / Alacak Geçmişi</h3>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn-detail btn-checkin" onclick="openPaymentModal('tahsilat')"><i class="bi bi-plus me-1"></i>Yeni Tahsilat Ekle</button>
+          <button class="btn-detail btn-cancelapt" onclick="openPaymentModal('alacak')"><i class="bi bi-plus me-1"></i>Yeni Alacak Ekle</button>
+        </div>
+      </div>
+      ${payments.length ? payments.map(p => `
+        <div class="payment-row">
+          <div>
+            <span class="payment-amount ${p.type}">${p.type === 'tahsilat' ? '+' : '-'}${formatMoney(p.amount)} TL</span>
+            ${p.note ? ` <small class="text-muted">(${esc(p.note)})</small>` : ''}
+            <br><small class="text-muted">${p.created_at}</small>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" onclick="detailDeletePayment(${p.id})"><i class="bi bi-trash"></i></button>
+        </div>
+      `).join('') : '<div class="empty-state"><i class="bi bi-cash-coin"></i>Henüz ödeme kaydı yok</div>'}
+    </div>
+
+    <button class="btn-detail btn-noshow" onclick="detailCloseUnpaid()"><i class="bi bi-lock me-1"></i>Tahsilatsız Kapat</button>
+  `;
+}
+
+async function detailSavePayment() {
+  const body = {
+    discount: document.getElementById('detailDiscount').value,
+    loyalty_used: document.getElementById('detailLoyalty').value
+  };
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+  showToast('Kaydedildi', 'success'); loadAppointmentDetail();
+}
+
+function openPaymentModal(type) {
+  document.getElementById('paymentType').value = type;
+  document.getElementById('paymentAmount').value = '';
+  document.getElementById('paymentNote').value = '';
+  document.getElementById('paymentModalTitle').innerHTML = type === 'tahsilat'
+    ? '<i class="bi bi-cash-coin me-2"></i>Yeni Tahsilat Ekle'
+    : '<i class="bi bi-cash-coin me-2"></i>Yeni Alacak Ekle';
+  new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+
+async function confirmAddPayment() {
+  const type = document.getElementById('paymentType').value;
+  const amount = document.getElementById('paymentAmount').value;
+  const note = document.getElementById('paymentNote').value;
+  if (!amount || +amount <= 0) { showToast('Geçerli bir tutar girin', 'danger'); return; }
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/payments`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ type, amount, note })
+  });
+  const data = await res.json();
+  if (data.success) {
+    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+    showToast('Kaydedildi', 'success');
+    loadAppointmentDetail();
+  } else showToast(data.error || 'Hata', 'danger');
+}
+
+async function detailDeletePayment(id) {
+  if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/payments/${id}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) { showToast('Silindi', 'success'); loadAppointmentDetail(); }
+}
+
+async function detailCloseUnpaid() {
+  if (!confirm('Bu randevuyu tahsilatsız kapatmak istediğinize emin misiniz?')) return;
+  const res = await fetch(`/api/admin/appointments/${currentDetailId}/close-unpaid`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) { showToast('Tahsilatsız kapatıldı', 'success'); loadAppointmentDetail(); }
+}
+
+// ── Approve / Reject ───────────────────────────────────────────────────────────
+function openApprove(id, name, service, date, time) {
+  currentApproveId = id;
+  document.getElementById('approveNote').value = '';
+  document.getElementById('approveDetails').innerHTML = `
+    <div class="alert alert-light">
+      <strong><i class="bi bi-person me-1"></i>${esc(name)}</strong><br>
+      <i class="bi bi-scissors me-1"></i>${esc(service||'Belirtilmedi')} &nbsp;|&nbsp; <i class="bi bi-calendar me-1"></i>${formatDateTR(date)} &nbsp;|&nbsp; <i class="bi bi-clock me-1"></i>${time}
+    </div>`;
+  new bootstrap.Modal(document.getElementById('approveModal')).show();
+}
+
+async function confirmApprove() {
+  const note = document.getElementById('approveNote').value;
+  bootstrap.Modal.getInstance(document.getElementById('approveModal')).hide();
+  
+  const res = await fetch(`/api/admin/appointments/${currentApproveId}/approve`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ admin_note: note })
+  });
+  const data = await res.json();
+  
+  if (data.success) {
+    if (data.whatsapp_sent) {
+      showToast('Onaylandi! WhatsApp mesaji otomatik gonderildi.', 'success');
+    } else {
+      showToast('Randevu onaylandi.', 'success');
+      // Show WA link button
+      if (data.whatsapp_link) {
+        setTimeout(() => {
+          if (confirm('WhatsApp mesajı otomatik gönderilemedi. Manuel göndermek ister misiniz?')) {
+            window.open(data.whatsapp_link, '_blank');
+          }
+        }, 500);
+      }
+    }
+    loadDashboard();
+    if (document.getElementById('sec-appointments').classList.contains('active')) loadAppointments();
+    if (document.getElementById('sec-today').classList.contains('active')) loadToday();
+  } else {
+    showToast('Hata: ' + (data.error || 'Bilinmeyen hata'), 'danger');
+  }
+}
+
+function openReject(id) {
+  currentRejectId = id;
+  document.getElementById('rejectNote').value = '';
+  new bootstrap.Modal(document.getElementById('rejectModal')).show();
+}
+
+async function confirmReject() {
+  const note = document.getElementById('rejectNote').value;
+  bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
+  
+  const res = await fetch(`/api/admin/appointments/${currentRejectId}/reject`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ admin_note: note })
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('Randevu reddedildi', 'warning');
+    loadDashboard();
+    if (document.getElementById('sec-appointments').classList.contains('active')) loadAppointments();
+    if (document.getElementById('sec-today').classList.contains('active')) loadToday();
+  }
+}
+
+async function sendWAManual(id) {
+  const res = await fetch(`/api/admin/appointments/${id}/approve`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ admin_note: '' })
+  });
+  const data = await res.json();
+  if (data.whatsapp_link) window.open(data.whatsapp_link, '_blank');
+}
+
+// ── Staff ──────────────────────────────────────────────────────────────────────
+async function loadStaff() {
+  const res = await fetch('/api/admin/staff');
+  const data = await res.json();
+  document.getElementById('staffTableBody').innerHTML = data.staff.map(s => `
+    <tr>
+      <td>${s.id}</td>
+      <td><strong>${esc(s.name)}</strong></td>
+      <td>${esc(s.title||'Berber')}</td>
+      <td><span class="badge-status ${s.active ? 'badge-approved' : 'badge-cancelled'}">${s.active ? 'Aktif' : 'Pasif'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="editStaff(${s.id},'${esc(s.name)}','${esc(s.title||'')}',${s.active})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteStaff(${s.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openStaffModal(id) {
+  document.getElementById('staffId').value = '';
+  document.getElementById('staffName').value = '';
+  document.getElementById('staffTitle').value = 'Berber';
+  document.getElementById('staffActive').value = '1';
+  document.getElementById('staffModalTitle').textContent = 'Personel Ekle';
+  new bootstrap.Modal(document.getElementById('staffModal')).show();
+}
+
+function editStaff(id, name, title, active) {
+  document.getElementById('staffId').value = id;
+  document.getElementById('staffName').value = name;
+  document.getElementById('staffTitle').value = title;
+  document.getElementById('staffActive').value = active;
+  document.getElementById('staffModalTitle').textContent = 'Personeli Düzenle';
+  new bootstrap.Modal(document.getElementById('staffModal')).show();
+}
+
+async function saveStaff() {
+  const id = document.getElementById('staffId').value;
+  const body = {
+    name: document.getElementById('staffName').value,
+    title: document.getElementById('staffTitle').value,
+    active: parseInt(document.getElementById('staffActive').value)
+  };
+  const url = id ? `/api/admin/staff/${id}` : '/api/admin/staff';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if (res.ok) {
+    bootstrap.Modal.getInstance(document.getElementById('staffModal')).hide();
+    loadStaff();
+    showToast('Personel kaydedildi');
+  }
+}
+
+async function deleteStaff(id) {
+  if (!confirm('Bu personeli pasife almak istiyor musunuz?')) return;
+  await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' });
+  loadStaff();
+  showToast('Personel pasife alındı', 'warning');
+}
+
+// ── Services ───────────────────────────────────────────────────────────────────
+async function loadServices() {
+  const res = await fetch('/api/admin/services');
+  const data = await res.json();
+  document.getElementById('servicesTableBody').innerHTML = data.services.map(s => `
+    <tr>
+      <td>${s.id}</td>
+      <td><strong>${esc(s.name)}</strong></td>
+      <td>${s.duration} dk</td>
+      <td>₺${s.price}</td>
+      <td><span class="badge-status ${s.active ? 'badge-approved' : 'badge-cancelled'}">${s.active ? 'Aktif' : 'Pasif'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="editService(${s.id},'${esc(s.name)}',${s.duration},${s.price},${s.active})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteService(${s.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openServiceModal() {
+  document.getElementById('serviceId').value = '';
+  document.getElementById('serviceName').value = '';
+  document.getElementById('serviceDuration').value = '30';
+  document.getElementById('servicePrice').value = '0';
+  document.getElementById('serviceActive').value = '1';
+  document.getElementById('serviceModalTitle').textContent = 'Hizmet Ekle';
+  new bootstrap.Modal(document.getElementById('serviceModal')).show();
+}
+
+function editService(id, name, duration, price, active) {
+  document.getElementById('serviceId').value = id;
+  document.getElementById('serviceName').value = name;
+  document.getElementById('serviceDuration').value = duration;
+  document.getElementById('servicePrice').value = price;
+  document.getElementById('serviceActive').value = active;
+  document.getElementById('serviceModalTitle').textContent = 'Hizmeti Düzenle';
+  new bootstrap.Modal(document.getElementById('serviceModal')).show();
+}
+
+async function saveService() {
+  const id = document.getElementById('serviceId').value;
+  const body = {
+    name: document.getElementById('serviceName').value,
+    duration: parseInt(document.getElementById('serviceDuration').value),
+    price: parseFloat(document.getElementById('servicePrice').value),
+    active: parseInt(document.getElementById('serviceActive').value)
+  };
+  const url = id ? `/api/admin/services/${id}` : '/api/admin/services';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if (res.ok) {
+    bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
+    loadServices();
+    showToast('Hizmet kaydedildi');
+  }
+}
+
+async function deleteService(id) {
+  if (!confirm('Bu hizmeti pasife almak istiyor musunuz?')) return;
+  await fetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+  loadServices();
+  showToast('Hizmet pasife alındı', 'warning');
+}
+
+// ── Working Hours ──────────────────────────────────────────────────────────────
+async function loadWorkingHours() {
+  const res = await fetch('/api/admin/working-hours');
+  const data = await res.json();
+  document.getElementById('hoursTableBody').innerHTML = data.hours.map(h => `
+    <tr>
+      <td><strong>${DAY_NAMES[h.day_of_week]}</strong></td>
+      <td><input type="time" class="form-control" id="open-${h.day_of_week}" value="${h.open_time}" style="width:120px" ${h.is_closed ? 'disabled' : ''}></td>
+      <td><input type="time" class="form-control" id="close-${h.day_of_week}" value="${h.close_time}" style="width:120px" ${h.is_closed ? 'disabled' : ''}></td>
+      <td>
+        <label class="toggle-switch">
+          <input type="checkbox" id="closed-${h.day_of_week}" ${h.is_closed ? 'checked' : ''} onchange="toggleDayClosed(${h.day_of_week})">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function toggleDayClosed(day) {
+  const closed = document.getElementById('closed-' + day).checked;
+  document.getElementById('open-' + day).disabled = closed;
+  document.getElementById('close-' + day).disabled = closed;
+}
+
+async function saveWorkingHours() {
+  const promises = [0,1,2,3,4,5,6].map(day => {
+    return fetch(`/api/admin/working-hours/${day}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        open_time: document.getElementById('open-' + day).value || '09:00',
+        close_time: document.getElementById('close-' + day).value || '19:00',
+        is_closed: document.getElementById('closed-' + day).checked
+      })
+    });
+  });
+  await Promise.all(promises);
+  showToast('Çalışma saatleri kaydedildi ✅');
+}
+
+// ── Settings ───────────────────────────────────────────────────────────────────
+async function loadSettings() {
+  const res = await fetch('/api/admin/settings');
+  const data = await res.json();
+  Object.entries(data.settings).forEach(([k, v]) => {
+    const el = document.getElementById('set-' + k);
+    if (el) el.value = v;
+  });
+}
+
+async function saveSettings() {
+  const keys = ['shop_name', 'shop_phone', 'shop_address', 'slot_duration', 'advance_booking_days', 'owner_notify_phone'];
+  const settings = {};
+  keys.forEach(k => { const el = document.getElementById('set-' + k); if (el) settings[k] = el.value; });
+  
+  const res = await fetch('/api/admin/settings', {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ settings })
+  });
+  if (res.ok) showToast('Ayarlar kaydedildi ✅');
+}
+
+async function changePassword() {
+  const current = document.getElementById('pw-current').value;
+  const newPw = document.getElementById('pw-new').value;
+  const confirm2 = document.getElementById('pw-confirm').value;
+  if (newPw !== confirm2) { showToast('Yeni şifreler eşleşmiyor', 'danger'); return; }
+  if (newPw.length < 6) { showToast('Şifre en az 6 karakter olmalı', 'danger'); return; }
+  
+  const res = await fetch('/api/admin/password', {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ current_password: current, new_password: newPw })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    showToast('Şifre güncellendi ✅');
+    ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
+  } else {
+    showToast(data.error || 'Hata', 'danger');
+  }
+}
+
+// ── WhatsApp ───────────────────────────────────────────────────────────────────
+async function checkWAStatus() {
+  const res = await fetch('/api/admin/whatsapp/status');
+  const data = await res.json();
+  
+  const topbar = document.getElementById('waStatusTopbar');
+  const box = document.getElementById('waStatusBox');
+  const qrSection = document.getElementById('waQRSection');
+  const connSection = document.getElementById('waConnectedSection');
+
+  if (data.ready) {
+    topbar.className = 'wa-status connected';
+    topbar.innerHTML = '<i class="bi bi-whatsapp"></i> <span>WhatsApp Bağlı</span>';
+    if (box) { box.innerHTML = '<div class="wa-status connected"><i class="bi bi-check-circle-fill"></i> Bağlı ve Hazır</div>'; }
+    if (qrSection) qrSection.style.display = 'none';
+    if (connSection) connSection.style.display = 'block';
+  } else if (data.has_qr) {
+    topbar.className = 'wa-status disconnected';
+    topbar.innerHTML = '<i class="bi bi-whatsapp"></i> <span>QR Bekliyor</span>';
+    if (box) { box.innerHTML = '<div class="wa-status loading"><i class="bi bi-qr-code"></i> QR Kodu Bekleniyor</div>'; }
+    if (qrSection) {
+      qrSection.style.display = 'block';
+      loadQR();
+    }
+    if (connSection) connSection.style.display = 'none';
+  } else {
+    topbar.className = 'wa-status disconnected';
+    topbar.innerHTML = '<i class="bi bi-whatsapp"></i> <span>Bağlı Değil</span>';
+    if (box) { box.innerHTML = '<div class="wa-status disconnected"><i class="bi bi-x-circle"></i> Bağlı Değil</div>'; }
+    if (qrSection) qrSection.style.display = 'none';
+    if (connSection) connSection.style.display = 'none';
+  }
+}
+
+async function loadQR() {
+  const res = await fetch('/api/admin/whatsapp/qr');
+  const data = await res.json();
+  if (data.qr) document.getElementById('waQRImage').src = data.qr;
+}
+
+// ── WhatsApp Tab Navigation ────────────────────────────────────────────────────
+function showWATab(tab) {
+  document.getElementById('wa-tab-meta').style.display   = tab === 'meta'   ? '' : 'none';
+  document.getElementById('wa-tab-twilio').style.display = tab === 'twilio' ? '' : 'none';
+  document.getElementById('wa-tab-waweb').style.display  = tab === 'waweb'  ? '' : 'none';
+  document.getElementById('tab-meta').classList.toggle('active', tab === 'meta');
+  document.getElementById('tab-twilio').classList.toggle('active', tab === 'twilio');
+  document.getElementById('tab-waweb').classList.toggle('active', tab === 'waweb');
+  if (tab === 'meta') loadMetaSettings();
+  if (tab === 'twilio') loadTwilioSettings();
+  if (tab === 'waweb') checkWAStatus();
+  return false;
+}
+
+// ── Meta WhatsApp Cloud API ──────────────────────────────────────────────────────
+async function loadMetaSettings() {
+  const res = await fetch('/api/admin/meta');
+  if (!res.ok) return;
+  const data = await res.json();
+  const m = data.meta;
+  document.getElementById('meta-phone-id').value = m.phone_number_id || '';
+  document.getElementById('meta-token').value    = m.access_token === '***' ? '' : (m.access_token || '');
+  document.getElementById('meta-active').checked = !!m.active;
+  updateMetaStatusBadge(m.active, m.phone_number_id);
+}
+
+function updateMetaStatusBadge(active, hasPhoneId) {
+  const badge = document.getElementById('metaStatusBadge');
+  if (!badge) return;
+  if (active && hasPhoneId) {
+    badge.innerHTML = '<span class="wa-status connected" style="padding:6px 12px;font-size:0.8rem"><i class="bi bi-check-circle-fill me-1"></i>Aktif</span>';
+  } else if (hasPhoneId) {
+    badge.innerHTML = '<span class="wa-status loading" style="padding:6px 12px;font-size:0.8rem"><i class="bi bi-pause-circle me-1"></i>Pasif</span>';
+  } else {
+    badge.innerHTML = '<span class="wa-status disconnected" style="padding:6px 12px;font-size:0.8rem"><i class="bi bi-x-circle me-1"></i>Kurulmadi</span>';
+  }
+}
+
+async function saveMetaSettings() {
+  const body = {
+    phone_number_id: document.getElementById('meta-phone-id').value.trim(),
+    access_token:    document.getElementById('meta-token').value.trim(),
+    active:          document.getElementById('meta-active').checked
+  };
+  if (!body.phone_number_id) { showToast('Phone Number ID bos birakilamaz', 'danger'); return; }
+  const res = await fetch('/api/admin/meta', {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  if (res.ok) {
+    showToast('Meta ayarlari kaydedildi');
+    updateMetaStatusBadge(body.active, body.phone_number_id);
+  } else {
+    showToast('Kayit basarisiz', 'danger');
+  }
+}
+
+function showMetaTestModal() {
+  document.getElementById('metaTestPhone').value = '';
+  new bootstrap.Modal(document.getElementById('metaTestModal')).show();
+}
+
+async function sendMetaTest() {
+  const phone = document.getElementById('metaTestPhone').value.trim();
+  if (!phone) { showToast('Telefon numarasi girin', 'danger'); return; }
+  bootstrap.Modal.getInstance(document.getElementById('metaTestModal')).hide();
+  showToast('Mesaj gonderiliyor...', 'warning');
+  const res = await fetch('/api/admin/meta/test', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ test_phone: phone })
+  });
+  const data = await res.json();
+  if (res.ok) showToast(data.message || 'Test mesaji gonderildi!');
+  else showToast(data.error || 'Gonderilemedi. Meta bilgilerini kontrol edin.', 'danger');
+}
+
+function toggleMetaTokenVis() {
+  const input = document.getElementById('meta-token');
+  const icon  = document.getElementById('metaTokenEyeIcon');
+  if (input.type === 'password') { input.type = 'text';     icon.className = 'bi bi-eye-slash'; }
+  else                           { input.type = 'password'; icon.className = 'bi bi-eye'; }
+}
+
+// ── Twilio ─────────────────────────────────────────────────────────────────────
+async function loadTwilioSettings() {
+  const res = await fetch('/api/admin/twilio');
+  if (!res.ok) return;
+  const data = await res.json();
+  const t = data.twilio;
+  document.getElementById('twilio-sid').value   = t.account_sid || '';
+  document.getElementById('twilio-token').value = t.auth_token === '***' ? '' : (t.auth_token || '');
+  document.getElementById('twilio-active').checked = !!t.active;
+
+  const fromSel = document.getElementById('twilio-from');
+  const knownValues = Array.from(fromSel.options).map(o => o.value);
+  if (t.from_number && !knownValues.includes(t.from_number)) {
+    fromSel.value = 'custom';
+    document.getElementById('twilio-from-custom').value = t.from_number;
+    document.getElementById('customFromHelp').style.display = '';
+  } else {
+    fromSel.value = t.from_number || 'whatsapp:+14155238886';
+  }
+
+  updateTwilioStatusBadge(t.active, t.account_sid);
+}
+
+function updateTwilioStatusBadge(active, hasSid) {
+  const badge = document.getElementById('twilioStatusBadge');
+  if (!badge) return;
+  if (active && hasSid) {
+    badge.innerHTML = '<span class="wa-status connected" style="padding:6px 12px;font-size:0.8rem"><i class="bi bi-check-circle-fill me-1"></i>Aktif</span>';
+  } else if (hasSid) {
+    badge.innerHTML = '<span class="wa-status loading" style="padding:6px 12px;font-size:0.8rem"><i class="bi bi-pause-circle me-1"></i>Pasif</span>';
+  } else {
+    badge.innerHTML = '<span class="wa-status disconnected" style="padding:6px 12px;font-size:0.8rem"><i class="bi bi-x-circle me-1"></i>Kurulmadi</span>';
+  }
+}
+
+document.getElementById && document.addEventListener('DOMContentLoaded', () => {
+  const fromSel = document.getElementById('twilio-from');
+  if (fromSel) {
+    fromSel.addEventListener('change', () => {
+      document.getElementById('customFromHelp').style.display = fromSel.value === 'custom' ? '' : 'none';
+    });
+  }
+});
+
+async function saveTwilioSettings() {
+  const fromSel = document.getElementById('twilio-from');
+  const fromNum = fromSel.value === 'custom'
+    ? document.getElementById('twilio-from-custom').value.trim()
+    : fromSel.value;
+  const body = {
+    account_sid:  document.getElementById('twilio-sid').value.trim(),
+    auth_token:   document.getElementById('twilio-token').value.trim(),
+    from_number:  fromNum,
+    active:       document.getElementById('twilio-active').checked
+  };
+  if (!body.account_sid) { showToast('Account SID bos birakilamaz', 'danger'); return; }
+  const res = await fetch('/api/admin/twilio', {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  if (res.ok) {
+    showToast('Twilio ayarlari kaydedildi');
+    updateTwilioStatusBadge(body.active, body.account_sid);
+  } else {
+    showToast('Kayit basarisiz', 'danger');
+  }
+}
+
+function showTestModal() {
+  document.getElementById('testPhone').value = '';
+  new bootstrap.Modal(document.getElementById('testModal')).show();
+}
+
+async function sendTwilioTest() {
+  const phone = document.getElementById('testPhone').value.trim();
+  if (!phone) { showToast('Telefon numarasi girin', 'danger'); return; }
+  bootstrap.Modal.getInstance(document.getElementById('testModal')).hide();
+  showToast('Mesaj gonderiliyor...', 'warning');
+  const res = await fetch('/api/admin/twilio/test', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ test_phone: phone })
+  });
+  const data = await res.json();
+  if (res.ok) showToast(data.message || 'Test mesaji gonderildi!');
+  else showToast(data.error || 'Gonderilemedi. Twilio bilgilerini kontrol edin.', 'danger');
+}
+
+function toggleTokenVis() {
+  const input = document.getElementById('twilio-token');
+  const icon  = document.getElementById('tokenEyeIcon');
+  if (input.type === 'password') { input.type = 'text';     icon.className = 'bi bi-eye-slash'; }
+  else                           { input.type = 'password'; icon.className = 'bi bi-eye'; }
+}
+
+// ── Bildirimler (Notifications) ─────────────────────────────────────────────────
+async function loadNotifications() {
+  const res = await fetch('/api/admin/notifications');
+  const data = await res.json();
+
+  const badge = document.getElementById('notifBadge');
+  if (data.unread_count > 0) { badge.textContent = data.unread_count; badge.style.display = 'flex'; }
+  else badge.style.display = 'none';
+
+  const list = document.getElementById('notifList');
+  if (!data.notifications || data.notifications.length === 0) {
+    list.innerHTML = '<div class="empty-state"><i class="bi bi-bell-slash"></i>Bildirim yok</div>';
+    return;
+  }
+  list.innerHTML = data.notifications.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="openNotification(event, ${n.id})">
+      <div class="notif-icon"><i class="bi bi-calendar-plus"></i></div>
+      <div class="notif-text">
+        <strong>${esc(n.customer_name)}</strong> ${esc(n.service_name || 'bir hizmet')} için randevu talep etti<br>
+        ${formatDateTR(n.date)} <strong>${n.time}</strong>
+        <div class="notif-time">${notifTimeAgo(n.created_at)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleNotifications(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('notifPanel');
+  const willOpen = panel.style.display === 'none';
+  panel.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) loadNotifications();
+}
+
+function openNotification(e, id) {
+  e.stopPropagation();
+  document.getElementById('notifPanel').style.display = 'none';
+  openAppointmentDetail(id, 'dashboard');
+}
+
+async function markAllNotificationsRead(e) {
+  e.stopPropagation();
+  await fetch('/api/admin/notifications/mark-read', { method: 'POST' });
+  loadNotifications();
+}
+
+function notifTimeAgo(createdAt) {
+  const iso = createdAt.includes('T') ? createdAt : createdAt.replace(' ', 'T') + 'Z';
+  const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (diffMin < 1) return 'Az önce';
+  if (diffMin < 60) return diffMin + ' dakika önce';
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return diffHour + ' saat önce';
+  return Math.floor(diffHour / 24) + ' gün önce';
+}
+
+document.addEventListener('click', () => {
+  const panel = document.getElementById('notifPanel');
+  if (panel) panel.style.display = 'none';
+});
+
+// ── Masraflar (Expenses) ──────────────────────────────────────────────────────
+let expensesList = [];
+
+function expenseCatClass(cat) {
+  const m = { 'Kira':'exp-kira', 'Fatura':'exp-fatura', 'Malzeme':'exp-malzeme', 'Maaş/Prim':'exp-maas', 'Bakım/Onarım':'exp-bakim', 'Vergi/SGK':'exp-vergi', 'Diğer':'exp-diger' };
+  return m[cat] || 'exp-diger';
+}
+
+function monthRange(monthStr) {
+  const [y, m] = monthStr.split('-').map(Number);
+  const start = `${monthStr}-01`;
+  const lastDay = new Date(y, m, 0).getDate();
+  const end = `${monthStr}-${String(lastDay).padStart(2,'0')}`;
+  return { start, end };
+}
+
+async function loadExpenses() {
+  const category = document.getElementById('expenseCategory').value;
+  const month = document.getElementById('expenseMonth').value;
+  let url = '/api/admin/expenses?';
+  const params = [];
+  if (category) params.push('category=' + encodeURIComponent(category));
+  if (month) {
+    const { start, end } = monthRange(month);
+    params.push('start_date=' + start, 'end_date=' + end);
+  }
+  url += params.join('&');
+  const res = await fetch(url);
+  const data = await res.json();
+  expensesList = data.expenses || [];
+  document.getElementById('expenseTotal').textContent = formatMoney(data.total) + ' TL';
+
+  const tbody = document.getElementById('expensesTableBody');
+  const empty = document.getElementById('expensesEmpty');
+  if (expensesList.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = expensesList.map(e => `
+    <tr>
+      <td>${formatDateTR(e.date)}</td>
+      <td><span class="expense-cat ${expenseCatClass(e.category)}">${esc(e.category)}</span></td>
+      <td>${esc(e.description || '-')}</td>
+      <td>${formatMoney(e.amount)} TL</td>
+      <td class="d-flex gap-1">
+        <button class="btn-gold" onclick="openEditExpenseModal(${e.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn-reject" onclick="deleteExpense(${e.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openExpenseModal() {
+  document.getElementById('expenseModalTitle').textContent = 'Yeni Masraf';
+  document.getElementById('expenseId').value = '';
+  document.getElementById('expenseCategorySelect').value = 'Kira';
+  document.getElementById('expenseAmount').value = '';
+  document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('expenseDescription').value = '';
+  new bootstrap.Modal(document.getElementById('expenseModal')).show();
+}
+
+function openEditExpenseModal(id) {
+  const e = expensesList.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('expenseModalTitle').textContent = 'Masrafı Düzenle';
+  document.getElementById('expenseId').value = e.id;
+  document.getElementById('expenseCategorySelect').value = e.category;
+  document.getElementById('expenseAmount').value = e.amount;
+  document.getElementById('expenseDate').value = e.date;
+  document.getElementById('expenseDescription').value = e.description || '';
+  new bootstrap.Modal(document.getElementById('expenseModal')).show();
+}
+
+async function saveExpense() {
+  const id = document.getElementById('expenseId').value;
+  const body = {
+    category: document.getElementById('expenseCategorySelect').value,
+    amount: document.getElementById('expenseAmount').value,
+    date: document.getElementById('expenseDate').value,
+    description: document.getElementById('expenseDescription').value.trim()
+  };
+  if (!body.category || !body.date || !body.amount || +body.amount <= 0) { showToast('Lütfen tüm alanları doğru doldurun', 'danger'); return; }
+
+  const res = await fetch(id ? `/api/admin/expenses/${id}` : '/api/admin/expenses', {
+    method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('expenseModal')).hide();
+  showToast('Kaydedildi', 'success');
+  loadExpenses();
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Bu masrafı silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/admin/expenses/${id}`, { method: 'DELETE' });
+  showToast('Silindi', 'success');
+  loadExpenses();
+}
+
+function clearExpenseFilters() {
+  document.getElementById('expenseCategory').value = '';
+  document.getElementById('expenseMonth').value = '';
+  loadExpenses();
+}
+
+// ── Ürünler (Products & Sales) ────────────────────────────────────────────────
+let productsList = [];
+let productSalesList = [];
+let currentProductTab = 'stock';
+
+function stockClass(stock) {
+  return stock <= 5 ? 'stock-low' : 'stock-ok';
+}
+
+function showProductTab(tab) {
+  currentProductTab = tab;
+  document.getElementById('ptab-stock').classList.toggle('active', tab === 'stock');
+  document.getElementById('ptab-sales').classList.toggle('active', tab === 'sales');
+  document.getElementById('productStockView').style.display = tab === 'stock' ? 'block' : 'none';
+  document.getElementById('productSalesView').style.display = tab === 'sales' ? 'block' : 'none';
+  if (tab === 'stock') loadProducts();
+  else loadProductSales();
+  return false;
+}
+
+async function loadProducts() {
+  const res = await fetch('/api/admin/products');
+  const data = await res.json();
+  productsList = data.products || [];
+
+  const tbody = document.getElementById('productsTableBody');
+  const empty = document.getElementById('productsEmpty');
+  if (productsList.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = productsList.map(p => `
+    <tr>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td>${esc(p.category || '-')}</td>
+      <td>${formatMoney(p.price)} TL</td>
+      <td><span class="stock-badge ${stockClass(p.stock)}">${p.stock} adet</span></td>
+      <td class="d-flex gap-1">
+        <button class="btn-gold" onclick="openEditProductModal(${p.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn-reject" onclick="deleteProduct(${p.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openProductModal() {
+  document.getElementById('productModalTitle').textContent = 'Yeni Ürün';
+  document.getElementById('productId').value = '';
+  document.getElementById('productName').value = '';
+  document.getElementById('productCategory').value = '';
+  document.getElementById('productPrice').value = '';
+  document.getElementById('productStock').value = '';
+  new bootstrap.Modal(document.getElementById('productModal')).show();
+}
+
+function openEditProductModal(id) {
+  const p = productsList.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('productModalTitle').textContent = 'Ürünü Düzenle';
+  document.getElementById('productId').value = p.id;
+  document.getElementById('productName').value = p.name;
+  document.getElementById('productCategory').value = p.category || '';
+  document.getElementById('productPrice').value = p.price;
+  document.getElementById('productStock').value = p.stock;
+  new bootstrap.Modal(document.getElementById('productModal')).show();
+}
+
+async function saveProduct() {
+  const id = document.getElementById('productId').value;
+  const body = {
+    name: document.getElementById('productName').value.trim(),
+    category: document.getElementById('productCategory').value.trim(),
+    price: document.getElementById('productPrice').value,
+    stock: document.getElementById('productStock').value
+  };
+  if (!body.name || body.price === '' || +body.price < 0 || body.stock === '' || +body.stock < 0) { showToast('Lütfen tüm alanları doğru doldurun', 'danger'); return; }
+
+  const res = await fetch(id ? `/api/admin/products/${id}` : '/api/admin/products', {
+    method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+  showToast('Kaydedildi', 'success');
+  loadProducts();
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+  showToast('Silindi', 'success');
+  loadProducts();
+}
+
+async function loadProductSales() {
+  const month = document.getElementById('productSalesMonth').value;
+  let url = '/api/admin/product-sales';
+  if (month) {
+    const { start, end } = monthRange(month);
+    url += `?start_date=${start}&end_date=${end}`;
+  }
+  const res = await fetch(url);
+  const data = await res.json();
+  productSalesList = data.sales || [];
+  document.getElementById('productSalesTotal').textContent = formatMoney(data.total) + ' TL';
+
+  const tbody = document.getElementById('productSalesTableBody');
+  const empty = document.getElementById('productSalesEmpty');
+  if (productSalesList.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = productSalesList.map(s => `
+    <tr>
+      <td>${formatDateTR(s.date)}</td>
+      <td>${esc(s.product_name)}</td>
+      <td>${s.quantity}</td>
+      <td>${formatMoney(s.unit_price)} TL</td>
+      <td>${formatMoney(s.total)} TL</td>
+      <td>${esc(s.customer_name || '-')}</td>
+      <td><button class="btn-reject" onclick="deleteProductSale(${s.id})"><i class="bi bi-trash"></i></button></td>
+    </tr>
+  `).join('');
+}
+
+function clearProductSalesFilters() {
+  document.getElementById('productSalesMonth').value = '';
+  loadProductSales();
+}
+
+async function deleteProductSale(id) {
+  if (!confirm('Bu satışı silmek istediğinize emin misiniz? (Stok geri eklenecek)')) return;
+  await fetch(`/api/admin/product-sales/${id}`, { method: 'DELETE' });
+  showToast('Silindi', 'success');
+  loadProductSales();
+}
+
+async function openProductSaleModal() {
+  await loadProducts();
+  const select = document.getElementById('saleProductId');
+  if (productsList.length === 0) {
+    select.innerHTML = '<option value="">Ürün yok - önce ürün ekleyin</option>';
+  } else {
+    select.innerHTML = productsList.map(p => `<option value="${p.id}">${esc(p.name)} (${formatMoney(p.price)} TL, stok: ${p.stock})</option>`).join('');
+  }
+  document.getElementById('saleQuantity').value = 1;
+  document.getElementById('saleCustomerName').value = '';
+  document.getElementById('saleCustomerPhone').value = '';
+  document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+  updateSaleProductInfo();
+  new bootstrap.Modal(document.getElementById('productSaleModal')).show();
+}
+
+function updateSaleProductInfo() {
+  const id = +document.getElementById('saleProductId').value;
+  const product = productsList.find(p => p.id === id);
+  const qty = +document.getElementById('saleQuantity').value || 0;
+  if (!product) {
+    document.getElementById('saleProductInfo').textContent = '';
+    document.getElementById('saleTotalPreview').textContent = '0 TL';
+    return;
+  }
+  document.getElementById('saleProductInfo').textContent = `Stokta ${product.stock} adet mevcut`;
+  document.getElementById('saleTotalPreview').textContent = formatMoney(product.price * qty) + ' TL';
+}
+
+async function saveProductSale() {
+  const body = {
+    product_id: +document.getElementById('saleProductId').value,
+    quantity: document.getElementById('saleQuantity').value,
+    customer_name: document.getElementById('saleCustomerName').value.trim(),
+    customer_phone: document.getElementById('saleCustomerPhone').value.trim(),
+    date: document.getElementById('saleDate').value
+  };
+  if (!body.product_id || !body.quantity || +body.quantity <= 0 || !body.date) { showToast('Lütfen tüm alanları doğru doldurun', 'danger'); return; }
+
+  const res = await fetch('/api/admin/product-sales', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('productSaleModal')).hide();
+  showToast('Satış kaydedildi', 'success');
+  loadProducts();
+}
+
+// ── Paketler (Packages) ────────────────────────────────────────────────────────
+let packagesList = [];
+let customerPackagesList = [];
+let currentPackageTab = 'defs';
+
+function sessionClass(cp) {
+  return cp.remaining_sessions > 0 ? 'session-active' : 'session-done';
+}
+
+function showPackageTab(tab) {
+  currentPackageTab = tab;
+  document.getElementById('pktab-defs').classList.toggle('active', tab === 'defs');
+  document.getElementById('pktab-sales').classList.toggle('active', tab === 'sales');
+  document.getElementById('packageDefsView').style.display = tab === 'defs' ? 'block' : 'none';
+  document.getElementById('packageSalesView').style.display = tab === 'sales' ? 'block' : 'none';
+  if (tab === 'defs') loadPackages();
+  else loadCustomerPackages();
+  return false;
+}
+
+async function loadPackages() {
+  const res = await fetch('/api/admin/packages');
+  const data = await res.json();
+  packagesList = data.packages || [];
+
+  const tbody = document.getElementById('packagesTableBody');
+  const empty = document.getElementById('packagesEmpty');
+  if (packagesList.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = packagesList.map(p => `
+    <tr>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td>${esc(p.description || '-')}</td>
+      <td>${p.session_count}</td>
+      <td>${formatMoney(p.price)} TL</td>
+      <td class="d-flex gap-1">
+        <button class="btn-gold" onclick="openEditPackageModal(${p.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn-reject" onclick="deletePackage(${p.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openPackageModal() {
+  document.getElementById('packageModalTitle').textContent = 'Yeni Paket';
+  document.getElementById('packageId').value = '';
+  document.getElementById('packageName').value = '';
+  document.getElementById('packageDescription').value = '';
+  document.getElementById('packageSessionCount').value = '';
+  document.getElementById('packagePrice').value = '';
+  new bootstrap.Modal(document.getElementById('packageModal')).show();
+}
+
+function openEditPackageModal(id) {
+  const p = packagesList.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('packageModalTitle').textContent = 'Paketi Düzenle';
+  document.getElementById('packageId').value = p.id;
+  document.getElementById('packageName').value = p.name;
+  document.getElementById('packageDescription').value = p.description || '';
+  document.getElementById('packageSessionCount').value = p.session_count;
+  document.getElementById('packagePrice').value = p.price;
+  new bootstrap.Modal(document.getElementById('packageModal')).show();
+}
+
+async function savePackage() {
+  const id = document.getElementById('packageId').value;
+  const body = {
+    name: document.getElementById('packageName').value.trim(),
+    description: document.getElementById('packageDescription').value.trim(),
+    session_count: document.getElementById('packageSessionCount').value,
+    price: document.getElementById('packagePrice').value
+  };
+  if (!body.name || !body.session_count || +body.session_count <= 0 || body.price === '' || +body.price < 0) { showToast('Lütfen tüm alanları doğru doldurun', 'danger'); return; }
+
+  const res = await fetch(id ? `/api/admin/packages/${id}` : '/api/admin/packages', {
+    method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('packageModal')).hide();
+  showToast('Kaydedildi', 'success');
+  loadPackages();
+}
+
+async function deletePackage(id) {
+  if (!confirm('Bu paketi silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/admin/packages/${id}`, { method: 'DELETE' });
+  showToast('Silindi', 'success');
+  loadPackages();
+}
+
+async function loadCustomerPackages() {
+  const res = await fetch('/api/admin/customer-packages');
+  const data = await res.json();
+  customerPackagesList = data.customer_packages || [];
+  document.getElementById('packageSalesTotal').textContent = formatMoney(data.total) + ' TL';
+
+  const tbody = document.getElementById('packageSalesTableBody');
+  const empty = document.getElementById('packageSalesEmpty');
+  if (customerPackagesList.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = customerPackagesList.map(cp => `
+    <tr>
+      <td>
+        <strong>${esc(cp.customer_name)}</strong><br>
+        <a class="customer-phone-link" href="https://wa.me/90${cp.customer_phone.replace(/\D/g,'').replace(/^0/,'')}" target="_blank"><i class="bi bi-telephone-fill me-1"></i>${esc(cp.customer_phone)}</a>
+      </td>
+      <td>${esc(cp.package_name)}</td>
+      <td><span class="session-badge ${sessionClass(cp)}">${cp.remaining_sessions} / ${cp.total_sessions}</span></td>
+      <td>${formatMoney(cp.price)} TL</td>
+      <td>${formatDateTR(cp.purchase_date)}</td>
+      <td class="d-flex gap-1">
+        <button class="btn-gold" ${cp.remaining_sessions <= 0 ? 'disabled' : ''} onclick="usePackageSession(${cp.id})"><i class="bi bi-check-lg"></i></button>
+        <button class="btn-reject" onclick="deleteCustomerPackage(${cp.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function usePackageSession(id) {
+  const res = await fetch(`/api/admin/customer-packages/${id}/use`, { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+  showToast('Seans kullanıldı', 'success');
+  loadCustomerPackages();
+}
+
+async function deleteCustomerPackage(id) {
+  if (!confirm('Bu paket satışını silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/admin/customer-packages/${id}`, { method: 'DELETE' });
+  showToast('Silindi', 'success');
+  loadCustomerPackages();
+}
+
+async function openPackageSaleModal() {
+  await loadPackages();
+  const select = document.getElementById('pkgSalePackageId');
+  if (packagesList.length === 0) {
+    select.innerHTML = '<option value="">Paket yok - önce paket tanımlayın</option>';
+  } else {
+    select.innerHTML = packagesList.map(p => `<option value="${p.id}">${esc(p.name)} (${p.session_count} seans, ${formatMoney(p.price)} TL)</option>`).join('');
+  }
+  document.getElementById('pkgSaleCustomerName').value = '';
+  document.getElementById('pkgSaleCustomerPhone').value = '';
+  document.getElementById('pkgSaleDate').value = new Date().toISOString().split('T')[0];
+  updatePackageSaleInfo();
+  new bootstrap.Modal(document.getElementById('packageSaleModal')).show();
+}
+
+function updatePackageSaleInfo() {
+  const id = +document.getElementById('pkgSalePackageId').value;
+  const pkg = packagesList.find(p => p.id === id);
+  const info = document.getElementById('pkgSaleInfo');
+  if (!pkg) { info.textContent = ''; return; }
+  info.textContent = `${pkg.session_count} seans - ${formatMoney(pkg.price)} TL`;
+}
+
+async function savePackageSale() {
+  const body = {
+    package_id: +document.getElementById('pkgSalePackageId').value,
+    customer_name: document.getElementById('pkgSaleCustomerName').value.trim(),
+    customer_phone: document.getElementById('pkgSaleCustomerPhone').value.trim(),
+    purchase_date: document.getElementById('pkgSaleDate').value
+  };
+  if (!body.package_id || !body.customer_name || !body.customer_phone || !body.purchase_date) { showToast('Lütfen tüm alanları doğru doldurun', 'danger'); return; }
+
+  const res = await fetch('/api/admin/customer-packages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) { showToast(data.error || 'Bir hata oluştu', 'danger'); return; }
+
+  bootstrap.Modal.getInstance(document.getElementById('packageSaleModal')).hide();
+  showToast('Satış kaydedildi', 'success');
+  showPackageTab('sales');
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function formatDateTR(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('tr-TR', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function statusLabel(s) {
+  const m = { pending:'Bekliyor', approved:'Onaylı', rejected:'Reddedildi', cancelled:'İptal', completed:'Geldi', no_show:'Gelmedi' };
+  return m[s] || s;
+}
+
+function esc(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function showToast(msg, type = 'success') {
+  const id = 'toast-' + Date.now();
+  const colors = { success: '#28a745', danger: '#dc3545', warning: '#e68000' };
+  const html = `<div id="${id}" style="background:${colors[type]||'#333'};color:#fff;padding:12px 20px;border-radius:10px;margin-bottom:8px;font-size:0.9rem;box-shadow:0 4px 15px rgba(0,0,0,0.2);animation:slideIn 0.3s ease">${msg}</div>`;
+  document.head.insertAdjacentHTML('beforeend', '<style>@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}</style>');
+  document.getElementById('toastContainer').insertAdjacentHTML('beforeend', html);
+  setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 4000);
+}
+
+// Init
+checkAuth();
+</script>
+</body>
+</html>
